@@ -1,0 +1,10 @@
+.main {
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 0 16px;
+}
+
+.route {
+  margin-bottom: 16px;
+  color: #6b7280;
+}
