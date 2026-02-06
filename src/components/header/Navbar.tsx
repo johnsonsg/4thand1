@@ -58,11 +58,11 @@ export function Navbar() {
               className="flex items-center gap-2 rounded-lg bg-primary/10 px-3 py-1.5 transition-colors hover:bg-primary/20"
             >
               <Image
-                src="/images/logo-4th-and-1.jpg"
+                src="/images/logo-4th-and-1-v2.svg"
                 alt="4th&1 logo"
                 width={24}
                 height={24}
-                className="h-6 w-6 rounded object-cover"
+                className="h-6 w-auto object-contain"
               />
               <span className="font-display text-sm font-bold uppercase tracking-wider text-primary">
                 4th&1
@@ -126,11 +126,11 @@ export function Navbar() {
                 onClick={() => setMobileOpen(false)}
               >
                 <Image
-                  src="/images/logo-4th-and-1.jpg"
+                  src="/images/logo-4th-and-1-v2.svg"
                   alt="4th&1 logo"
                   width={28}
                   height={28}
-                  className="h-7 w-7 rounded object-cover"
+                  className="h-7 w-auto object-contain"
                 />
                 <span className="font-display text-lg font-bold uppercase tracking-wider text-primary">
                   4th&1

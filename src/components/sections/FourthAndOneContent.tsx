@@ -9,16 +9,14 @@ export function FourthAndOneContent() {
       <div className="relative mb-10">
         <div className="absolute -inset-8 rounded-3xl bg-primary/5 blur-2xl" />
         <Image
-          src="/images/logo-4th-and-1.jpg"
+          src="/images/logo-4th-and-1-v2.svg"
           alt="4th&1 logo"
-          width={320}
-          height={320}
-          className="relative h-64 w-64 rounded-2xl object-cover shadow-2xl shadow-primary/20 md:h-80 md:w-80"
+          width={174}
+          height={240}
+          className="relative h-64 w-auto object-contain shadow-2xl shadow-primary/20 md:h-80 md:w-auto"
           priority
         />
       </div>
-
-      <h1 className="font-display text-5xl font-bold uppercase tracking-wider text-foreground md:text-7xl">4th&amp;1</h1>
 
       <p className="mt-4 max-w-md text-center text-lg leading-relaxed text-muted-foreground md:text-xl">
         When it matters most, we convert.
