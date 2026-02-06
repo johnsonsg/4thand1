@@ -19,7 +19,7 @@ export function HeroSection() {
     <section className="relative flex min-h-screen items-end overflow-hidden">
       {/* Background image */}
       <Image
-        src="/images/hero-football.jpg"
+        src="/images/hero-football-v2.svg"
         alt="Westfield Eagles football team celebrating under Friday night lights"
         fill
         className="object-cover"
