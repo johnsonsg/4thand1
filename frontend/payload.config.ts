@@ -2,7 +2,7 @@ import path from 'node:path';
 import { buildConfig } from 'payload';
 import { mongooseAdapter } from '@payloadcms/db-mongodb';
 import { lexicalEditor } from '@payloadcms/richtext-lexical';
-import Users from './src/collections/Users';
+import Users from './src/collections/Users.ts';
 
 export default buildConfig({
   secret: process.env.PAYLOAD_SECRET || '',
