@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { RootPage, generatePageMetadata } from '@payloadcms/next/views';
 import configPromise from '@payload-config';
+import { importMap } from '../importMap';
 
 type PageProps = {
   params: Promise<{ segments?: string[] }>;
@@ -10,6 +11,7 @@ type PageProps = {
 export default async function AdminPage({ params, searchParams }: PageProps) {
   return RootPage({
     config: configPromise,
+    importMap,
     params,
     searchParams,
   });
