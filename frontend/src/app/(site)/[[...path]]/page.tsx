@@ -1,32 +1,27 @@
-import * as React from 'react';
-import type { GetServerSideProps } from 'next';
+import { headers } from 'next/headers';
+import { notFound } from 'next/navigation';
 import type { CmsLayoutData } from '@/lib/types/cms';
 import { Placeholder } from '@/components/rendering/Placeholder';
 import { fetchLayoutData } from '@/lib/services/layout';
 import { ThemeTokensEffect, type ThemeConfig } from '@/components/theme/ThemeTokensEffect';
 
 type PageProps = {
-  layoutData: CmsLayoutData;
+  params: Promise<{ path?: string[] }>;
 };
 
-export const getServerSideProps: GetServerSideProps<PageProps> = async (context) => {
-  const segments = (context.params?.path as string[] | undefined) ?? [];
+export default async function RoutePage({ params }: PageProps) {
+  const { path: segments = [] } = await params;
   const path = `/${segments.join('/')}`.replace(/\/$/, '') || '/';
 
-  const layoutData = await fetchLayoutData({ path, context });
+  const reqHeaders = await headers();
+  const layoutData = (await fetchLayoutData({ path, headers: reqHeaders })) as CmsLayoutData;
 
   if (!layoutData?.cms?.route) {
-    return { notFound: true };
+    notFound();
   }
 
-  return { props: { layoutData } };
-};
-
-export default function RoutePage({ layoutData }: PageProps) {
   const route = layoutData.cms.route;
   const theme = (layoutData.cms.context?.theme ?? null) as ThemeConfig | null;
-
-  if (!route) return null;
 
   return (
     <main>

@@ -1,14 +1,26 @@
-import type { GetServerSidePropsContext } from 'next';
 import type { CmsLayoutData } from '@/lib/types/cms';
 
 type FetchLayoutArgs = {
   path: string;
-  context: Pick<GetServerSidePropsContext, 'req'>;
+  context?: { req: { headers: Record<string, string | string[] | undefined> } };
+  headers?: Headers;
 };
 
-function getBaseUrl(req: GetServerSidePropsContext['req']) {
-  const proto = (req.headers['x-forwarded-proto'] as string | undefined) ?? 'http';
-  const host = req.headers.host;
+type HeaderGetter = { get(name: string): string | null };
+
+function getBaseUrlFromHeaders(headers: HeaderGetter) {
+  const proto = headers.get('x-forwarded-proto') ?? 'http';
+  const host = headers.get('x-forwarded-host') ?? headers.get('host');
+  if (!host) throw new Error('Missing host header for CMS layout request.');
+  return `${proto}://${host}`;
+}
+
+function getBaseUrlFromReq(req: { headers: Record<string, string | string[] | undefined> }) {
+  const rawProto = req.headers['x-forwarded-proto'];
+  const proto = Array.isArray(rawProto) ? rawProto[0] : rawProto ?? 'http';
+  const rawHost = req.headers['x-forwarded-host'] ?? req.headers.host;
+  const host = Array.isArray(rawHost) ? rawHost[0] : rawHost;
+  if (!host) throw new Error('Missing host header for CMS layout request.');
   return `${proto}://${host}`;
 }
 
@@ -19,11 +31,18 @@ function getBaseUrl(req: GetServerSidePropsContext['req']) {
  * - `mock` (default): calls this app's `/api/layout`.
  * - `custom`: calls your backend's layout endpoint (`CMS_LAYOUT_URL`).
  */
-export async function fetchLayoutData({ path, context }: FetchLayoutArgs): Promise<CmsLayoutData> {
+export async function fetchLayoutData({ path, context, headers }: FetchLayoutArgs): Promise<CmsLayoutData> {
   const mode = (process.env.CMS_MODE ?? 'mock').toLowerCase();
 
   if (mode === 'mock') {
-    const baseUrl = getBaseUrl(context.req);
+    let baseUrl: string;
+    if (headers) {
+      baseUrl = getBaseUrlFromHeaders(headers);
+    } else if (context?.req) {
+      baseUrl = getBaseUrlFromReq(context.req);
+    } else {
+      throw new Error('Missing request headers for CMS layout request.');
+    }
     const res = await fetch(`${baseUrl}/api/layout?path=${encodeURIComponent(path)}`);
     if (!res.ok) {
       const body = await res.text().catch(() => '');

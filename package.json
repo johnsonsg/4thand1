@@ -1,36 +1,13 @@
 {
-  "name": "4thand1",
+  "name": "4thand1-monorepo",
   "private": true,
-  "version": "0.1.0",
+  "workspaces": [
+    "frontend"
+  ],
   "scripts": {
-    "dev": "NODE_ENV=development next dev --webpack",
-    "dev:turbo": "NODE_ENV=development next dev --turbo",
-    "build": "NODE_ENV=production next build",
-    "start": "NODE_ENV=production next start",
-    "lint": "next lint"
-  },
-  "dependencies": {
-    "@emotion/react": "^11.14.0",
-    "@emotion/server": "^11.11.0",
-    "@emotion/styled": "^11.14.1",
-    "@mui/icons-material": "^7.3.7",
-    "@mui/material": "^7.3.7",
-    "jotai": "^2.17.0",
-    "lucide-react": "^0.563.0",
-    "next": "16.1.6",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0"
-  },
-  "devDependencies": {
-    "@tailwindcss/postcss": "^4.1.18",
-    "@types/node": "^22.0.0",
-    "@types/react": "^19.0.0",
-    "@types/react-dom": "^19.0.0",
-    "autoprefixer": "^10.4.23",
-    "eslint": "^9.0.0",
-    "eslint-config-next": "16.1.6",
-    "postcss": "^8.5.6",
-    "tailwindcss": "^4.1.18",
-    "typescript": "^5.7.0"
+    "dev": "npm run dev -w frontend",
+    "build": "npm run build -w frontend",
+    "lint": "npm run lint -w frontend",
+    "frontend": "npm run dev -w frontend"
   }
 }
