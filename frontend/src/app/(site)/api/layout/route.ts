@@ -1,8 +1,39 @@
 import { NextResponse } from 'next/server';
 import type { CmsLayoutData, ComponentRendering, Field } from '@/lib/types/cms';
 import { getThemeConfig } from '@/lib/theme/themeStore';
+import configPromise from '@payload-config';
+import { getPayload } from 'payload';
 
-function layoutForPath(path: string): CmsLayoutData {
+type HeroBackground = {
+  src: string;
+  alt: string;
+};
+
+async function getHeroBackgroundImage(): Promise<HeroBackground | null> {
+  try {
+    const payload = await getPayload({ config: configPromise });
+    const heroSettings = await payload.findGlobal({ slug: 'hero-settings' });
+    const background = heroSettings?.backgroundImage as
+      | {
+          url?: string;
+          alt?: string;
+          filename?: string;
+        }
+      | undefined;
+
+    if (background?.url) {
+      return {
+        src: background.url,
+        alt: background.alt || 'Hero background',
+      };
+    }
+  } catch (_err) {
+    // If Payload is not configured yet, fall back to defaults.
+  }
+  return null;
+}
+
+async function layoutForPath(path: string): Promise<CmsLayoutData> {
   const routeName = path === '/' ? 'home' : path.replace(/^\//, '').replace(/\//g, '-');
 
   const f = <T,>(value: T): Field<T> => ({ value });
@@ -47,6 +78,8 @@ function layoutForPath(path: string): CmsLayoutData {
     },
   });
 
+  const heroBackground = await getHeroBackgroundImage();
+
   const main: ComponentRendering[] = (() => {
     if (path === '/') {
       return [
@@ -59,8 +92,8 @@ function layoutForPath(path: string): CmsLayoutData {
             headline: f('Friday Night Lights'),
             description: f('Home of the Westfield Eagles. Building champions on and off the field since 1952.'),
             backgroundImage: f({
-              src: '/images/hero-football-v2.svg',
-              alt: 'Westfield Eagles football team celebrating under Friday night lights',
+              src: heroBackground?.src ?? '/images/hero-football-v2.svg',
+              alt: heroBackground?.alt ?? 'Westfield Eagles football team celebrating under Friday night lights',
             }),
             primaryCtaLabel: f('View Schedule'),
             primaryCtaHref: f('/schedule'),
@@ -194,7 +227,7 @@ export async function GET(request: Request) {
   }
 
   const theme = await getThemeConfig();
-  const layout = layoutForPath(path);
+  const layout = await layoutForPath(path);
   layout.cms.context = { ...layout.cms.context, theme };
 
   return NextResponse.json(layout);

@@ -9,19 +9,37 @@ type PageProps = {
 };
 
 export default async function AdminPage({ params, searchParams }: PageProps) {
+  const normalizedParams = params.then((value) => ({
+    segments: value.segments ?? [],
+  }));
+  const normalizedSearchParams = searchParams.then((value) => {
+    const entries = Object.entries(value).filter(([, entry]) => entry !== undefined);
+    return Object.fromEntries(entries) as Record<string, string | string[]>;
+  });
+
   return RootPage({
     config: configPromise,
     importMap,
-    params,
-    searchParams,
+    params: normalizedParams,
+    searchParams: normalizedSearchParams,
   });
 }
 
 export const generateMetadata = (props: {
   params: Promise<{ segments?: string[] }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }): Promise<Metadata> => {
+  const normalizedParams = props.params.then((value) => ({
+    segments: value.segments ?? [],
+  }));
+  const normalizedSearchParams = props.searchParams.then((value) => {
+    const entries = Object.entries(value).filter(([, entry]) => entry !== undefined);
+    return Object.fromEntries(entries) as Record<string, string | string[]>;
+  });
+
   return generatePageMetadata({
     config: configPromise,
-    params: props.params,
+    params: normalizedParams,
+    searchParams: normalizedSearchParams,
   });
 };
