@@ -1,13 +1,16 @@
 {
-  "name": "4thand1-monorepo",
-  "private": true,
-  "workspaces": [
-    "frontend"
-  ],
-  "scripts": {
-    "dev": "npm run dev -w frontend",
-    "build": "npm run build -w frontend",
-    "lint": "npm run lint -w frontend",
-    "frontend": "npm run dev -w frontend"
-  }
+	"name": "4thand1-monorepo",
+	"private": true,
+	"workspaces": [
+		"frontend"
+	],
+	"overrides": {
+		"undici": "5.28.4"
+	},
+	"scripts": {
+		"dev": "npm run dev -w frontend",
+		"build": "npm run build -w frontend",
+		"lint": "npm run lint -w frontend",
+		"frontend": "npm run dev -w frontend"
+	}
 }

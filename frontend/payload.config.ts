@@ -1,17 +1,20 @@
-import path from 'node:path';
-import { buildConfig } from 'payload';
-import { mongooseAdapter } from '@payloadcms/db-mongodb';
-import { lexicalEditor } from '@payloadcms/richtext-lexical';
-import Users from './src/collections/Users.ts';
-import Media from './src/collections/Media.ts';
-import HeroSettings from './src/globals/HeroSettings.ts';
+import path from 'node:path'
+import { buildConfig } from 'payload'
+import { mongooseAdapter } from '@payloadcms/db-mongodb'
+import { lexicalEditor } from '@payloadcms/richtext-lexical'
+
+import Users from './src/collections/Users'
+import Media from './src/collections/Media'
+import HeroSettings from './src/globals/HeroSettings'
 
 export default buildConfig({
   secret: process.env.PAYLOAD_SECRET || '',
   serverURL: process.env.PAYLOAD_PUBLIC_SERVER_URL || 'http://localhost:3000',
   routes: {
+    admin: '/admin',
     api: '/cms-api',
   },
+
   db: mongooseAdapter({
     url: process.env.MONGODB_URI || '',
   }),
@@ -24,4 +27,4 @@ export default buildConfig({
   typescript: {
     outputFile: path.resolve(process.cwd(), 'src', 'payload-types.ts'),
   },
-});
+})
