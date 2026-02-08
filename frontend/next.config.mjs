@@ -8,9 +8,19 @@ const __dirname = path.dirname(__filename)
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  // Workspace boundary for Turbopack.
   turbopack: {
     root: path.resolve(__dirname, '..'),
+  },
+
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+        port: '3000',
+        pathname: '/cms-api/**',
+      },
+    ],
   },
 }
 

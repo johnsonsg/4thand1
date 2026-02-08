@@ -37,10 +37,17 @@ type HeroSectionProps = {
 export function HeroSection({ rendering }: HeroSectionProps) {
   const fields = (rendering.fields ?? {}) as unknown as HeroSectionFields;
 
-  const background = fields.backgroundImage?.value ?? {
+  const defaultBackground = {
     src: "/images/hero-football-v2.svg",
     alt: "Westfield Eagles football team celebrating under Friday night lights",
   };
+
+  // Payload upload fields usually come through as an object with `url` and `alt`
+  const bgValue = fields.backgroundImage?.value as unknown as { url?: string; alt?: string } | undefined;
+
+  const background = bgValue?.url
+    ? { src: bgValue.url, alt: bgValue.alt ?? "Hero background" }
+    : defaultBackground;
 
   const kicker = fields.kicker?.value ?? "2025-2026 Season";
   const headline = fields.headline?.value ?? "Friday Night Lights";

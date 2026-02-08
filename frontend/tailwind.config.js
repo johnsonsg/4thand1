@@ -1,5 +1,5 @@
 /** @type {import('tailwindcss').Config} */
-module.exports = {
+const config = {
   // We control dark mode via `html.dark` in ThemeEffect.
   darkMode: 'class',
   content: ['./src/**/*.{js,ts,jsx,tsx}', './pages/**/*.{js,ts,jsx,tsx}'],
@@ -53,3 +53,5 @@ module.exports = {
   },
   plugins: [],
 };
+
+export default config
