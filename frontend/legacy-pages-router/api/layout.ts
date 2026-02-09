@@ -56,9 +56,9 @@ async function layoutForPath(path: string): Promise<CmsLayoutData> {
           uid: 'hero-section',
           componentName: 'HeroSection',
           fields: {
-            kicker: f('2025-2026 Season'),
+            season: f('2025-2026 Season'),
             headline: f('Friday Night Lights'),
-            description: f('Home of the Westfield Eagles. Building champions on and off the field since 1952.'),
+            heroDescription: f('Home of the Westfield Eagles. Building champions on and off the field since 1952.'),
             backgroundImage: f({
               src: '/images/hero-football-v2.svg',
               alt: 'Westfield Eagles football team celebrating under Friday night lights',

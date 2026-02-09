@@ -322,7 +322,18 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
  */
 export interface HeroSetting {
   id: string;
+  season?: string | null;
+  headline?: string | null;
+  heroDescription?: string | null;
   backgroundImage?: (string | null) | Media;
+  primaryCtaLabel?: string | null;
+  primaryCtaHref?: string | null;
+  secondaryCtaLabel?: string | null;
+  secondaryCtaHref?: string | null;
+  tertiaryCtaLabel?: string | null;
+  tertiaryCtaHref?: string | null;
+  quaternaryCtaLabel?: string | null;
+  quaternaryCtaHref?: string | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -331,7 +342,18 @@ export interface HeroSetting {
  * via the `definition` "hero-settings_select".
  */
 export interface HeroSettingsSelect<T extends boolean = true> {
+  season?: T;
+  headline?: T;
+  heroDescription?: T;
   backgroundImage?: T;
+  primaryCtaLabel?: T;
+  primaryCtaHref?: T;
+  secondaryCtaLabel?: T;
+  secondaryCtaHref?: T;
+  tertiaryCtaLabel?: T;
+  tertiaryCtaHref?: T;
+  quaternaryCtaLabel?: T;
+  quaternaryCtaHref?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

@@ -1,7 +1,7 @@
 type DemoData = {
   slug: string;
   title: string;
-  description: string;
+  heroDescription: string;
 };
 
 export async function getDemoData(slug: string): Promise<DemoData> {
@@ -9,6 +9,6 @@ export async function getDemoData(slug: string): Promise<DemoData> {
   return {
     slug,
     title: `Demo for ${slug}`,
-    description: `This data was loaded on the server for the slug "${slug}".`,
+    heroDescription: `This data was loaded on the server for the slug "${slug}".`,
   };
 }

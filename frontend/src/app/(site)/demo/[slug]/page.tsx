@@ -14,7 +14,7 @@ export default async function DemoSlugPage({ params }: PageProps) {
       <h1>Dynamic Demo Page</h1>
       <h2 style={{ marginTop: "1rem" }}>Slug: {resolvedParams.slug}</h2>
       <h3 style={{ marginTop: "1rem" }}>{demoData.title}</h3>
-      <p>{demoData.description}</p>
+      <p>{demoData.heroDescription}</p>
       <pre
         style={{
           marginTop: "1rem",
