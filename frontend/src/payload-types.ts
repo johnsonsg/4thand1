@@ -89,9 +89,17 @@ export interface Config {
   fallbackLocale: null;
   globals: {
     'hero-settings': HeroSetting;
+    'brand-settings': BrandSetting;
+    'theme-settings': ThemeSetting;
+    'stats-settings': StatsSetting;
+    'schedule-settings': ScheduleSetting;
   };
   globalsSelect: {
     'hero-settings': HeroSettingsSelect<false> | HeroSettingsSelect<true>;
+    'brand-settings': BrandSettingsSelect<false> | BrandSettingsSelect<true>;
+    'theme-settings': ThemeSettingsSelect<false> | ThemeSettingsSelect<true>;
+    'stats-settings': StatsSettingsSelect<false> | StatsSettingsSelect<true>;
+    'schedule-settings': ScheduleSettingsSelect<false> | ScheduleSettingsSelect<true>;
   };
   locale: null;
   user: User;
@@ -339,6 +347,87 @@ export interface HeroSetting {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "brand-settings".
+ */
+export interface BrandSetting {
+  id: string;
+  brandName?: string | null;
+  brandSubtitle?: string | null;
+  brandMark?: string | null;
+  brandLogo?: (string | null) | Media;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "theme-settings".
+ */
+export interface ThemeSetting {
+  id: string;
+  light?: {
+    /**
+     * Accepts hex (#030712) or HSL (43 90% 55%).
+     */
+    primary?: string | null;
+    /**
+     * Accepts hex (#030712) or HSL (43 90% 55%).
+     */
+    secondary?: string | null;
+  };
+  dark?: {
+    /**
+     * Accepts hex (#030712) or HSL (43 90% 55%).
+     */
+    primary?: string | null;
+    /**
+     * Accepts hex (#030712) or HSL (43 90% 55%).
+     */
+    secondary?: string | null;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "stats-settings".
+ */
+export interface StatsSetting {
+  id: string;
+  items?:
+    | {
+        value: string;
+        label: string;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "schedule-settings".
+ */
+export interface ScheduleSetting {
+  id: string;
+  seasonLabel?: string | null;
+  title?: string | null;
+  record?: string | null;
+  games?:
+    | {
+        dateTime: string;
+        opponent: string;
+        location: 'Home' | 'Away';
+        outcome?: ('W' | 'L' | 'T' | 'BYE') | null;
+        status: 'final' | 'upcoming';
+        result?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "hero-settings_select".
  */
 export interface HeroSettingsSelect<T extends boolean = true> {
@@ -354,6 +443,79 @@ export interface HeroSettingsSelect<T extends boolean = true> {
   tertiaryCtaHref?: T;
   quaternaryCtaLabel?: T;
   quaternaryCtaHref?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "brand-settings_select".
+ */
+export interface BrandSettingsSelect<T extends boolean = true> {
+  brandName?: T;
+  brandSubtitle?: T;
+  brandMark?: T;
+  brandLogo?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "theme-settings_select".
+ */
+export interface ThemeSettingsSelect<T extends boolean = true> {
+  light?:
+    | T
+    | {
+        primary?: T;
+        secondary?: T;
+      };
+  dark?:
+    | T
+    | {
+        primary?: T;
+        secondary?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "stats-settings_select".
+ */
+export interface StatsSettingsSelect<T extends boolean = true> {
+  items?:
+    | T
+    | {
+        value?: T;
+        label?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "schedule-settings_select".
+ */
+export interface ScheduleSettingsSelect<T extends boolean = true> {
+  seasonLabel?: T;
+  title?: T;
+  record?: T;
+  games?:
+    | T
+    | {
+        dateTime?: T;
+        opponent?: T;
+        location?: T;
+        outcome?: T;
+        status?: T;
+        result?: T;
+        id?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

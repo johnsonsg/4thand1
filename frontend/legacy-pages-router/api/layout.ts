@@ -43,7 +43,7 @@ async function layoutForPath(path: string): Promise<CmsLayoutData> {
       ]),
       fourthAndOneLabel: f('4th&1'),
       fourthAndOneHref: f('/fourth-and-1'),
-      fourthAndOneLogo: f({ src: '/images/logo-4th-and-1-v2.svg', alt: '4th&1 logo', width: 24, height: 24 }),
+      fourthAndOneLogo: f({ src: '/images/logo-4th-and-1-v3.svg', alt: '4th&1 logo', width: 24, height: 24 }),
     },
   });
 
@@ -91,7 +91,7 @@ async function layoutForPath(path: string): Promise<CmsLayoutData> {
           uid: 'fourth-and-1',
           componentName: 'FourthAndOne',
           fields: {
-            logo: f({ src: '/images/logo-4th-and-1-v2.svg', alt: '4th&1 logo', width: 174, height: 240 }),
+            logo: f({ src: '/images/logo-4th-and-1-v3.svg', alt: '4th&1 logo', width: 174, height: 240 }),
             tagline: f('When it matters most, we convert.'),
             teamName: f('Westfield Eagles'),
           },

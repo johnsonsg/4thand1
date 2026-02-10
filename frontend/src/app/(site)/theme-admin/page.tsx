@@ -9,28 +9,7 @@ type ThemeConfig = {
   dark: ThemeTokens;
 };
 
-const FIELDS = [
-  'background',
-  'foreground',
-  'card',
-  'cardForeground',
-  'popover',
-  'popoverForeground',
-  'primary',
-  'primaryForeground',
-  'secondary',
-  'secondaryForeground',
-  'muted',
-  'mutedForeground',
-  'accent',
-  'accentForeground',
-  'destructive',
-  'destructiveForeground',
-  'border',
-  'input',
-  'ring',
-  'radius',
-] as const;
+const FIELDS = ['primary', 'secondary'] as const;
 
 const EMPTY_THEME: ThemeConfig = { light: {}, dark: {} };
 
@@ -87,8 +66,8 @@ export default function ThemeAdminPage() {
     <main className="mx-auto w-full max-w-5xl px-6 py-10">
       <h1 className="text-2xl font-semibold">Theme Admin</h1>
       <p className="mt-2 text-sm text-muted-foreground">
-        Update theme tokens in HSL format (e.g. <span className="font-mono">43 90% 55%</span>). Use
-        <span className="font-mono"> radius</span> for border radius (e.g. <span className="font-mono">0.5rem</span>).
+        Update theme tokens in hex (<span className="font-mono">#030712</span>) or HSL
+        (<span className="font-mono">43 90% 55%</span>) format.
       </p>
 
       <div className="mt-8 grid gap-8 md:grid-cols-2">
@@ -98,12 +77,21 @@ export default function ThemeAdminPage() {
             {FIELDS.map((field) => (
               <label key={field} className="grid gap-1 text-sm">
                 <span className="text-muted-foreground">{field}</span>
-                <input
-                  value={theme.light?.[field] ?? ''}
-                  onChange={(e) => updateField('light', field, e.target.value)}
-                  className="rounded-md border border-border bg-background px-3 py-2 text-sm"
-                  placeholder={field === 'radius' ? '0.5rem' : '43 90% 55%'}
-                />
+                <div className="flex items-center gap-3">
+                  <input
+                    type="color"
+                    value={theme.light?.[field]?.startsWith('#') ? theme.light?.[field] : '#000000'}
+                    onChange={(e) => updateField('light', field, e.target.value)}
+                    className="h-10 w-12 rounded border border-border bg-background"
+                    aria-label={`${field} color`}
+                  />
+                  <input
+                    value={theme.light?.[field] ?? ''}
+                    onChange={(e) => updateField('light', field, e.target.value)}
+                    className="flex-1 rounded-md border border-border bg-background px-3 py-2 text-sm"
+                    placeholder="#030712 or 43 90% 55%"
+                  />
+                </div>
               </label>
             ))}
           </div>
@@ -115,12 +103,21 @@ export default function ThemeAdminPage() {
             {FIELDS.map((field) => (
               <label key={field} className="grid gap-1 text-sm">
                 <span className="text-muted-foreground">{field}</span>
-                <input
-                  value={theme.dark?.[field] ?? ''}
-                  onChange={(e) => updateField('dark', field, e.target.value)}
-                  className="rounded-md border border-border bg-background px-3 py-2 text-sm"
-                  placeholder={field === 'radius' ? '0.5rem' : '43 90% 55%'}
-                />
+                <div className="flex items-center gap-3">
+                  <input
+                    type="color"
+                    value={theme.dark?.[field]?.startsWith('#') ? theme.dark?.[field] : '#000000'}
+                    onChange={(e) => updateField('dark', field, e.target.value)}
+                    className="h-10 w-12 rounded border border-border bg-background"
+                    aria-label={`${field} color`}
+                  />
+                  <input
+                    value={theme.dark?.[field] ?? ''}
+                    onChange={(e) => updateField('dark', field, e.target.value)}
+                    className="flex-1 rounded-md border border-border bg-background px-3 py-2 text-sm"
+                    placeholder="#030712 or 43 90% 55%"
+                  />
+                </div>
               </label>
             ))}
           </div>

@@ -8,6 +8,7 @@
 import { NextResponse } from 'next/server'
 import type { CmsLayoutData, ComponentRendering, Field } from '@/lib/types/cms'
 import { getThemeConfig } from '@/lib/theme/themeStore'
+import type { ThemeConfig, ThemeTokens } from '@/components/theme/ThemeTokensEffect'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 
@@ -39,6 +40,56 @@ type HeroSettings = {
   tertiaryCtaHref?: string | null
   quaternaryCtaLabel?: string | null
   quaternaryCtaHref?: string | null
+}
+
+type BrandLogo = {
+  src: string
+  alt: string
+  width?: number
+  height?: number
+}
+
+type BrandSettings = {
+  brandName?: string | null
+  brandSubtitle?: string | null
+  brandMark?: string | null
+  brandLogo?: {
+    url?: string | null
+    alt?: string | null
+    filename?: string | null
+    width?: number | null
+    height?: number | null
+  } | null
+}
+
+type ThemeSettings = {
+  light?: ThemeTokens | null
+  dark?: ThemeTokens | null
+}
+
+type StatsItem = {
+  label?: string | null
+  value?: string | null
+}
+
+type StatsSettings = {
+  items?: StatsItem[] | null
+}
+
+type ScheduleGame = {
+  dateTime?: string | null
+  opponent?: string | null
+  location?: string | null
+  outcome?: 'W' | 'L' | 'T' | 'BYE' | null
+  result?: string | null
+  status?: 'final' | 'upcoming' | null
+}
+
+type ScheduleSettings = {
+  seasonLabel?: string | null
+  title?: string | null
+  record?: string | null
+  games?: ScheduleGame[] | null
 }
 
 /* ============================================================
@@ -82,6 +133,12 @@ const DEFAULT_HERO: {
     quaternaryCtaLabel: 'View Results',
     quaternaryCtaHref: '/results',
   },
+}
+
+const DEFAULT_BRAND: Required<Pick<BrandSettings, 'brandName' | 'brandSubtitle' | 'brandMark'>> = {
+  brandName: 'Westfield Eagles',
+  brandSubtitle: 'Football',
+  brandMark: 'W',
 }
 
 /* ============================================================
@@ -140,6 +197,39 @@ function resolveHeroBackground(bg?: HeroSettings['backgroundImage']): HeroBackgr
   }
 }
 
+function resolveBrandLogo(logo?: BrandSettings['brandLogo']): BrandLogo | null {
+  if (!logo) return null
+
+  if (logo.filename) {
+    return {
+      src: `/media/${logo.filename}`,
+      alt: logo.alt ?? 'Brand logo',
+      width: logo.width ?? undefined,
+      height: logo.height ?? undefined,
+    }
+  }
+
+  const url = logo.url ?? undefined
+  if (!url) return null
+
+  let pathname: string | undefined
+  try {
+    pathname = new URL(url).pathname
+  } catch {
+    pathname = url.startsWith('/') ? url : undefined
+  }
+  if (!pathname) return null
+
+  const src = pathname.replace(/^\/cms-api\/media\/file\//, '/media/')
+
+  return {
+    src,
+    alt: logo.alt ?? 'Brand logo',
+    width: logo.width ?? undefined,
+    height: logo.height ?? undefined,
+  }
+}
+
 /* ============================================================
    Payload access
    - Reads the "hero-settings" Global from Payload
@@ -180,6 +270,81 @@ async function getHeroSettings(): Promise<HeroSettings> {
   }
 }
 
+async function getBrandSettings(): Promise<BrandSettings> {
+  try {
+    const payload = await getPayload({ config: configPromise })
+    const raw = (await payload.findGlobal({ slug: 'brand-settings', depth: 1 })) as any
+
+    const brandLogo =
+      raw?.brandLogo && typeof raw.brandLogo === 'object'
+        ? {
+            url: raw.brandLogo.url ?? null,
+            alt: raw.brandLogo.alt ?? null,
+            filename: raw.brandLogo.filename ?? null,
+            width: raw.brandLogo.width ?? null,
+            height: raw.brandLogo.height ?? null,
+          }
+        : null
+
+    return {
+      brandName: raw?.brandName ?? null,
+      brandSubtitle: raw?.brandSubtitle ?? null,
+      brandMark: raw?.brandMark ?? null,
+      brandLogo,
+    }
+  } catch {
+    return {}
+  }
+}
+
+async function getThemeSettings(): Promise<ThemeConfig | null> {
+  try {
+    const payload = await getPayload({ config: configPromise })
+    const raw = (await payload.findGlobal({ slug: 'theme-settings', depth: 0 })) as ThemeSettings
+
+    return {
+      light: raw?.light ?? undefined,
+      dark: raw?.dark ?? undefined,
+    }
+  } catch {
+    return null
+  }
+}
+
+async function getStatsSettings(): Promise<StatsItem[]> {
+  const defaults: StatsItem[] = [
+    { label: 'Seasons', value: '73' },
+    { label: 'District Titles', value: '12' },
+    { label: 'State Appearances', value: '5' },
+    { label: 'All-State Players', value: '48' },
+  ]
+
+  try {
+    const payload = await getPayload({ config: configPromise })
+    const raw = (await payload.findGlobal({ slug: 'stats-settings', depth: 0 })) as StatsSettings
+    const items = raw?.items?.filter((item) => item?.label && item?.value) ?? []
+    return items.length ? items.slice(0, 6) : defaults
+  } catch {
+    return defaults
+  }
+}
+
+async function getScheduleSettings(): Promise<ScheduleSettings> {
+  try {
+    const payload = await getPayload({ config: configPromise })
+    const raw = (await payload.findGlobal({ slug: 'schedule-settings', depth: 0 })) as ScheduleSettings
+
+    return {
+      seasonLabel: raw?.seasonLabel ?? null,
+      title: raw?.title ?? null,
+      record: raw?.record ?? null,
+      games: raw?.games ?? null,
+    }
+  } catch {
+    return {}
+  }
+}
+
 /* ============================================================
    Layout builder
    - Returns CMS layout JSON for a given path
@@ -188,6 +353,11 @@ async function getHeroSettings(): Promise<HeroSettings> {
 async function layoutForPath(path: string): Promise<CmsLayoutData> {
   const routeName = path === '/' ? 'home' : path.replace(/^\//, '').replace(/\//g, '-')
   const f = <T>(value: T): Field<T> => ({ value })
+
+  const brand = await getBrandSettings()
+  const brandLogo = resolveBrandLogo(brand.brandLogo)
+  const statsItems = await getStatsSettings()
+  const schedule = await getScheduleSettings()
 
   // Demo “mock CMS” content
   const title = (() => {
@@ -215,9 +385,10 @@ async function layoutForPath(path: string): Promise<CmsLayoutData> {
     uid: 'navbar',
     componentName: 'Navbar',
     fields: {
-      brandName: f('Westfield Eagles'),
-      brandSubtitle: f('Football'),
-      brandMark: f('W'),
+      brandName: f(pick(brand.brandName, DEFAULT_BRAND.brandName)),
+      brandSubtitle: f(pick(brand.brandSubtitle, DEFAULT_BRAND.brandSubtitle)),
+      brandMark: f(pick(brand.brandMark, DEFAULT_BRAND.brandMark)),
+      ...(brandLogo ? { brandLogo: f(brandLogo) } : {}),
       navLinks: f([
         { label: 'Schedule', href: '/schedule' },
         { label: 'Roster', href: '/roster' },
@@ -228,7 +399,7 @@ async function layoutForPath(path: string): Promise<CmsLayoutData> {
       fourthAndOneLabel: f('4th&1'),
       fourthAndOneHref: f('/fourth-and-1'),
       fourthAndOneLogo: f({
-        src: '/images/logo-4th-and-1-v2.svg',
+        src: '/images/logo-4th-and-1-v3.svg',
         alt: '4th&1 logo',
         width: 24,
         height: 24,
@@ -263,8 +434,39 @@ async function layoutForPath(path: string): Promise<CmsLayoutData> {
             quaternaryCtaHref: f(pick(hero.quaternaryCtaHref, DEFAULT_HERO.ctas.quaternaryCtaHref)),
           },
         },
-        { uid: 'stats-bar', componentName: 'StatsBar' },
-        { uid: 'schedule-section', componentName: 'ScheduleSection' },
+        {
+          uid: 'stats-bar',
+          componentName: 'StatsBar',
+          fields: {
+            items: f(statsItems.map((item) => ({
+              label: item.label ?? '',
+              value: item.value ?? '',
+            }))),
+          },
+        },
+        {
+          uid: 'schedule-section',
+          componentName: 'ScheduleSection',
+          fields: {
+            seasonLabel: f(schedule.seasonLabel ?? '2025 Season'),
+            title: f(schedule.title ?? 'Game Schedule'),
+            record: f(schedule.record ?? 'Record: 3-1'),
+            ...(schedule.games?.length
+              ? {
+                  games: f(
+                    schedule.games.map((game) => ({
+                      dateTime: game.dateTime ?? '',
+                      opponent: game.opponent ?? '',
+                      location: game.location ?? '',
+                      outcome: game.outcome ?? null,
+                      result: game.result ?? null,
+                      status: game.status ?? 'upcoming',
+                    })),
+                  ),
+                }
+              : {}),
+          },
+        },
         { uid: 'roster-spotlight', componentName: 'RosterSpotlight' },
         { uid: 'news-section', componentName: 'NewsSection' },
         { uid: 'contact-section', componentName: 'ContactSection' },
@@ -282,7 +484,7 @@ async function layoutForPath(path: string): Promise<CmsLayoutData> {
           componentName: 'FourthAndOne',
           fields: {
             logo: f({
-              src: '/images/logo-4th-and-1-v2.svg',
+              src: '/images/logo-4th-and-1-v3.svg',
               alt: '4th&1 logo',
               width: 174,
               height: 240,
@@ -299,7 +501,29 @@ async function layoutForPath(path: string): Promise<CmsLayoutData> {
       return [
         navbar(),
         { uid: 'nav-spacer', componentName: 'NavSpacer' },
-        { uid: 'schedule-section', componentName: 'ScheduleSection' },
+        {
+          uid: 'schedule-section',
+          componentName: 'ScheduleSection',
+          fields: {
+            seasonLabel: f(schedule.seasonLabel ?? '2025 Season'),
+            title: f(schedule.title ?? 'Game Schedule'),
+            record: f(schedule.record ?? 'Record: 3-1'),
+            ...(schedule.games?.length
+              ? {
+                  games: f(
+                    schedule.games.map((game) => ({
+                      dateTime: game.dateTime ?? '',
+                      opponent: game.opponent ?? '',
+                      location: game.location ?? '',
+                      outcome: game.outcome ?? null,
+                      result: game.result ?? null,
+                      status: game.status ?? 'upcoming',
+                    })),
+                  ),
+                }
+              : {}),
+          },
+        },
         { uid: 'footer', componentName: 'Footer' },
       ]
     }
@@ -430,8 +654,13 @@ export async function GET(request: Request) {
   }
 
   const theme = await getThemeConfig()
+  const themeFromPayload = await getThemeSettings()
+  const mergedTheme: ThemeConfig = {
+    light: { ...theme.light, ...themeFromPayload?.light },
+    dark: { ...theme.dark, ...themeFromPayload?.dark },
+  }
   const layout = await layoutForPath(path)
-  layout.cms.context = { ...layout.cms.context, theme }
+  layout.cms.context = { ...layout.cms.context, theme: mergedTheme }
 
   return NextResponse.json(layout)
 }

@@ -6,6 +6,10 @@ import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import Users from './src/collections/Users'
 import Media from './src/collections/Media'
 import HeroSettings from './src/globals/HeroSettings'
+import BrandSettings from './src/globals/BrandSettings'
+import ThemeSettings from './src/globals/ThemeSettings'
+import StatsSettings from './src/globals/StatsSettings'
+import ScheduleSettings from './src/globals/ScheduleSettings'
 
 export default buildConfig({
   secret: process.env.PAYLOAD_SECRET || '',
@@ -21,9 +25,10 @@ export default buildConfig({
   editor: lexicalEditor({}),
   admin: {
     user: Users.slug,
+    css: [path.resolve(process.cwd(), 'src', 'styles', 'payload-admin.css')],
   },
   collections: [Users, Media],
-  globals: [HeroSettings],
+  globals: [HeroSettings, BrandSettings, ThemeSettings, StatsSettings, ScheduleSettings],
   typescript: {
     outputFile: path.resolve(process.cwd(), 'src', 'payload-types.ts'),
   },

@@ -25,7 +25,7 @@ export function FourthAndOneContent({ rendering }: FourthAndOneContentProps) {
   const fields = (rendering.fields ?? {}) as unknown as FourthAndOneFields;
 
   const logo = fields.logo?.value ?? {
-    src: '/images/logo-4th-and-1-v2.svg',
+    src: '/images/logo-4th-and-1-v3.svg',
     alt: '4th&1 logo',
     width: 174,
     height: 240,

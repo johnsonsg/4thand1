@@ -39,6 +39,12 @@ From repo root:
 
 Open http://localhost:3000
 
+## Payload admin import map (custom fields)
+
+If you add or change custom Payload admin components (e.g. a custom field), regenerate the import map from repo root:
+
+- `npm run generate:importmap -w frontend`
+
 ## 6) Create Admin User (Payload)
 
 - Visit http://localhost:3000/admin

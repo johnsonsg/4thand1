@@ -49,6 +49,8 @@ export function Navbar({ rendering }: NavbarProps) {
   const brandMark = fields.brandMark?.value ?? 'M';
   const brandLogo = fields.brandLogo?.value ?? null;
   const brandMarkImage = fields.brandMarkImage?.value ?? null;
+  const resolvedBrandImage = brandLogo ?? brandMarkImage;
+  const useBrandLogo = Boolean(brandLogo);
 
   const navLinks: NavLinkValue[] = fields.navLinks?.value ?? [
     { label: 'Schedule', href: '/schedule' },
@@ -61,7 +63,7 @@ export function Navbar({ rendering }: NavbarProps) {
   const fourthAndOneHref = fields.fourthAndOneHref?.value ?? '/fourth-and-1';
   const fourthAndOneLabel = fields.fourthAndOneLabel?.value ?? '4th&1';
   const fourthAndOneLogo = fields.fourthAndOneLogo?.value ?? {
-    src: '/images/logo-4th-and-1-v2.svg',
+    src: '/images/logo-4th-and-1-v3.svg',
     alt: '4th&1 logo',
     width: 24,
     height: 24,
@@ -71,13 +73,13 @@ export function Navbar({ rendering }: NavbarProps) {
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/90 backdrop-blur-md border-b border-border">
       <nav className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
         <Link href="/" className="flex items-center gap-3">
-          {brandLogo || brandMarkImage ? (
+          {resolvedBrandImage ? (
             <Image
-              src={(brandLogo ?? brandMarkImage)!.src}
-              alt={(brandLogo ?? brandMarkImage)!.alt}
-              width={(brandLogo ?? brandMarkImage)!.width ?? 40}
-              height={(brandLogo ?? brandMarkImage)!.height ?? 40}
-              className="h-10 w-10 rounded-full object-contain"
+              src={resolvedBrandImage.src}
+              alt={resolvedBrandImage.alt}
+              width={resolvedBrandImage.width ?? 40}
+              height={resolvedBrandImage.height ?? 40}
+              className={useBrandLogo ? 'h-10 w-auto object-contain' : 'h-10 w-10 rounded-full object-contain'}
             />
           ) : (
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary">

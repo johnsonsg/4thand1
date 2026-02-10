@@ -1,0 +1,29 @@
+.MuiOutlinedInput-root {
+  background-color: var(--theme-elevation-0, #0b0f1a);
+  color: var(--theme-text, #ffffff);
+}
+
+.MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline {
+  border-color: var(--theme-border, #2a3342);
+}
+
+.MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline,
+.MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+  border-color: var(--theme-brand, #d4a017);
+}
+
+.MuiOutlinedInput-root .MuiInputBase-input {
+  color: var(--theme-text, #ffffff);
+}
+
+.MuiOutlinedInput-root .MuiSvgIcon-root {
+  color: var(--theme-text-light, #9aa4b2);
+}
+
+.MuiInputLabel-root {
+  color: var(--theme-text-light, #9aa4b2);
+}
+
+.MuiInputLabel-root.Mui-focused {
+  color: var(--theme-brand, #d4a017);
+}

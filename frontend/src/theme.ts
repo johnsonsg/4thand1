@@ -37,6 +37,50 @@ export function getTheme(mode: PaletteMode) {
           },
         },
       },
+      MuiInputBase: {
+        styleOverrides: {
+          input: {
+            fontFamily: 'var(--font-inter), sans-serif',
+            fontSize: '0.875rem',
+            lineHeight: 1.25,
+            padding: '8px 12px',
+          },
+        },
+      },
+      MuiOutlinedInput: {
+        styleOverrides: {
+          root: {
+            borderRadius: 8,
+            backgroundColor: 'hsl(var(--background))',
+            color: 'hsl(var(--foreground))',
+            '& .MuiOutlinedInput-notchedOutline': {
+              borderColor: 'hsl(var(--border))',
+            },
+            '& .MuiInputBase-input': {
+              color: 'hsl(var(--foreground))',
+            },
+            '& .MuiSvgIcon-root': {
+              color: 'hsl(var(--muted-foreground))',
+            },
+            '&:hover .MuiOutlinedInput-notchedOutline': {
+              borderColor: 'hsl(var(--primary))',
+            },
+            '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+              borderColor: 'hsl(var(--primary))',
+            },
+          },
+        },
+      },
+      MuiInputLabel: {
+        styleOverrides: {
+          root: {
+            color: 'hsl(var(--muted-foreground))',
+            '&.Mui-focused': {
+              color: 'hsl(var(--primary))',
+            },
+          },
+        },
+      },
     },
   } as const;
 
@@ -46,12 +90,12 @@ export function getTheme(mode: PaletteMode) {
       palette: {
         mode: 'dark',
         primary: {
-          main: '#d4a017',
-          contrastText: '#0d1117',
+          main: 'hsl(var(--primary))',
+          contrastText: 'hsl(var(--primary-foreground))',
         },
         secondary: {
-          main: '#232b38',
-          contrastText: '#ede5d8',
+          main: 'hsl(var(--secondary))',
+          contrastText: 'hsl(var(--secondary-foreground))',
         },
         background: {
           default: '#0d1117',
@@ -70,8 +114,14 @@ export function getTheme(mode: PaletteMode) {
     ...common,
     palette: {
       mode: 'light',
-      primary: { main: '#d4a017' },
-      secondary: { main: '#232b38' },
+      primary: {
+        main: 'hsl(var(--primary))',
+        contrastText: 'hsl(var(--primary-foreground))',
+      },
+      secondary: {
+        main: 'hsl(var(--secondary))',
+        contrastText: 'hsl(var(--secondary-foreground))',
+      },
       background: {
         default: '#ffffff',
         paper: '#ffffff',
