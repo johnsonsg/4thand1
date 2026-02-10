@@ -417,9 +417,9 @@ export interface ScheduleSetting {
         dateTime: string;
         opponent: string;
         location: 'Home' | 'Away';
-        outcome?: ('W' | 'L' | 'T' | 'BYE') | null;
         status: 'final' | 'upcoming';
         result?: string | null;
+        outcome?: ('W' | 'L' | 'T' | 'BYE') | null;
         id?: string | null;
       }[]
     | null;
@@ -511,9 +511,9 @@ export interface ScheduleSettingsSelect<T extends boolean = true> {
         dateTime?: T;
         opponent?: T;
         location?: T;
-        outcome?: T;
         status?: T;
         result?: T;
+        outcome?: T;
         id?: T;
       };
   updatedAt?: T;
