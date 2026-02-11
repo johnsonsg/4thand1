@@ -1,29 +1,81 @@
-export function Footer() {
+import type { ComponentRendering, Field } from '@/lib/types/cms';
+import { BrandIdentity, type BrandImageValue } from '@/components/brand/BrandIdentity';
+
+type FooterFields = {
+  brandName?: Field<string>;
+  brandSubtitle?: Field<string>;
+  brandMark?: Field<string>;
+  brandMoto?: Field<string>;
+  brandLogo?: Field<BrandImageValue>;
+  brandMarkImage?: Field<BrandImageValue>;
+};
+
+type BrandFields = Pick<
+  FooterFields,
+  "brandName" | "brandSubtitle" | "brandMark" | "brandMarkImage" | "brandLogo"
+>;
+
+const brandDefaults = {
+  brandName: "Westfield Eagles",
+  brandSubtitle: "Football",
+  brandMark: "W",
+  brandMoto: "Building champions on and off the field since 1952. Home of the Eagles.",
+};
+
+const resolveBrandFields = (fields: BrandFields & Pick<FooterFields, "brandMoto">) => {
+  const brandName = fields.brandName?.value ?? brandDefaults.brandName;
+  const brandSubtitle = fields.brandSubtitle?.value ?? brandDefaults.brandSubtitle;
+  const brandMark = fields.brandMark?.value ?? brandDefaults.brandMark;
+  const brandLogo = fields.brandLogo?.value ?? null;
+  const brandMarkImage = fields.brandMarkImage?.value ?? null;
+  const brandMoto = fields.brandMoto?.value ?? brandDefaults.brandMoto;
+  const resolvedBrandImage = brandLogo ?? brandMarkImage;
+  const useBrandLogo = Boolean(brandLogo);
+
+  return {
+    brandName,
+    brandSubtitle,
+    brandMark,
+    brandLogo,
+    brandMarkImage,
+    brandMoto,
+    resolvedBrandImage,
+    useBrandLogo,
+  };
+};
+
+type FooterProps = {
+  rendering?: ComponentRendering;
+};
+
+export function Footer({ rendering }: FooterProps) {
+  const fields = (rendering?.fields ?? {}) as unknown as FooterFields;
+
+  const {
+    brandName,
+    brandSubtitle,
+    brandMark,
+    brandLogo,
+    brandMarkImage,
+    brandMoto,
+  } = resolveBrandFields(fields);
+
   return (
     <footer id="contact" className="border-t border-border bg-secondary/30 py-16">
       <div className="mx-auto max-w-7xl px-6">
         <div className="grid gap-12 md:grid-cols-3">
           {/* Brand */}
           <div>
-            <div className="mb-4 flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary">
-                <span className="font-display text-lg font-bold text-primary-foreground">
-                  W
-                </span>
-              </div>
-              <div>
-                <p className="font-display text-lg font-bold uppercase tracking-wider text-foreground">
-                  Westfield Eagles
-                </p>
-                <p className="text-xs uppercase tracking-widest text-muted-foreground">
-                  Football
-                </p>
-              </div>
-            </div>
-            <p className="text-sm leading-relaxed text-muted-foreground">
-              Building champions on and off the field since 1952. Home of the
-              Eagles.
-            </p>
+            <BrandIdentity
+              variant="footer"
+              showMoto
+              brandName={brandName}
+              brandSubtitle={brandSubtitle}
+              brandMark={brandMark}
+              brandLogo={brandLogo}
+              brandMarkImage={brandMarkImage}
+              brandMoto={brandMoto}
+            />
           </div>
 
           {/* Quick Links */}

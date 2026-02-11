@@ -51,14 +51,14 @@ export function RosterSpotlight() {
               key={player.name}
               className="group relative overflow-hidden rounded-lg"
             >
-              <div className="relative aspect-[3/4]">
+              <div className="relative aspect-3/4">
                 <Image
                   src={player.image || "/images/player-spotlight.jpg"}
                   alt={`${player.name}, ${player.position} #${player.number}`}
                   fill
                   className="object-cover transition-transform duration-500 group-hover:scale-105"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
+                <div className="absolute inset-0 bg-linear-to-t from-background via-background/40 to-transparent" />
               </div>
 
               {/* Number overlay */}

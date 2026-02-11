@@ -1,13 +1,13 @@
 import * as React from 'react';
-import { getComponent } from '@/lib/rendering/componentFactory';
+import { getComponent } from '@/lib/utils/componentFactory';
 import type { ComponentRendering, RouteData } from '@/lib/types/cms';
 
 type PlaceholderProps = {
   name: string;
-  rendering: RouteData | ComponentRendering;
+  rendering: RouteData;
 };
 
-export function Placeholder({ name, rendering }: PlaceholderProps) {
+export default function Placeholder({ name, rendering }: PlaceholderProps) {
   const components = rendering.placeholders?.[name] ?? [];
 
   return (

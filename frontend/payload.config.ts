@@ -1,4 +1,5 @@
 import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { buildConfig } from 'payload'
 import { mongooseAdapter } from '@payloadcms/db-mongodb'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
@@ -7,9 +8,11 @@ import Users from './src/collections/Users'
 import Media from './src/collections/Media'
 import HeroSettings from './src/globals/HeroSettings'
 import BrandSettings from './src/globals/BrandSettings'
-import ThemeSettings from './src/globals/ThemeSettings'
 import StatsSettings from './src/globals/StatsSettings'
 import ScheduleSettings from './src/globals/ScheduleSettings'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
 export default buildConfig({
   secret: process.env.PAYLOAD_SECRET || '',
@@ -25,10 +28,55 @@ export default buildConfig({
   editor: lexicalEditor({}),
   admin: {
     user: Users.slug,
-    css: [path.resolve(process.cwd(), 'src', 'styles', 'payload-admin.css')],
+    importMap: {
+      // Custom admin fields are resolved by string path, not TS imports.
+      baseDir: __dirname
+    }
   },
   collections: [Users, Media],
-  globals: [HeroSettings, BrandSettings, ThemeSettings, StatsSettings, ScheduleSettings],
+  globals: [
+    HeroSettings,
+    BrandSettings,
+    StatsSettings,
+    ScheduleSettings,
+    {
+      slug: "theme-settings",
+      fields: [
+        {
+          name: "light",
+          type: "group",
+          fields: [
+            {
+              name: "primary",
+              type: "text",
+              admin: { components: { Field: "/src/components/ColorPickerField#default" } }
+            },
+            {
+              name: "secondary",
+              type: "text",
+              admin: { components: { Field: "/src/components/ColorPickerField#default" } }
+            }
+          ]
+        },
+        {
+          name: "dark",
+          type: "group",
+          fields: [
+            {
+              name: "primary",
+              type: "text",
+              admin: { components: { Field: "/src/components/ColorPickerField#default" } }
+            },
+            {
+              name: "secondary",
+              type: "text",
+              admin: { components: { Field: "/src/components/ColorPickerField#default" } }
+            }
+          ]
+        }
+      ]
+    }
+  ],
   typescript: {
     outputFile: path.resolve(process.cwd(), 'src', 'payload-types.ts'),
   },

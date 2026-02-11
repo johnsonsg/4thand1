@@ -8,7 +8,7 @@
 import { NextResponse } from 'next/server'
 import type { CmsLayoutData, ComponentRendering, Field } from '@/lib/types/cms'
 import { getThemeConfig } from '@/lib/theme/themeStore'
-import type { ThemeConfig, ThemeTokens } from '@/components/theme/ThemeTokensEffect'
+import type { ThemeConfig, ThemeTokens } from '@/lib/theme/ThemeTokensEffect'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 
@@ -53,6 +53,7 @@ type BrandSettings = {
   brandName?: string | null
   brandSubtitle?: string | null
   brandMark?: string | null
+  brandMoto?: string | null
   brandLogo?: {
     url?: string | null
     alt?: string | null
@@ -290,6 +291,7 @@ async function getBrandSettings(): Promise<BrandSettings> {
       brandName: raw?.brandName ?? null,
       brandSubtitle: raw?.brandSubtitle ?? null,
       brandMark: raw?.brandMark ?? null,
+      brandMoto: raw?.brandMoto ?? null,
       brandLogo,
     }
   } catch {
@@ -407,6 +409,18 @@ async function layoutForPath(path: string): Promise<CmsLayoutData> {
     },
   })
 
+  const footer = (): ComponentRendering => ({
+    uid: 'footer',
+    componentName: 'Footer',
+    fields: {
+      brandName: f(pick(brand.brandName, DEFAULT_BRAND.brandName)),
+      brandSubtitle: f(pick(brand.brandSubtitle, DEFAULT_BRAND.brandSubtitle)),
+      brandMark: f(pick(brand.brandMark, DEFAULT_BRAND.brandMark)),
+      brandMoto: f(brand.brandMoto ?? 'Building champions on and off the field since 1952.'),
+      ...(brandLogo ? { brandLogo: f(brandLogo) } : {}),
+    },
+  })
+
   // Pull hero values from Payload
   const hero = await getHeroSettings()
   const heroBackground = resolveHeroBackground(hero.backgroundImage)
@@ -470,7 +484,7 @@ async function layoutForPath(path: string): Promise<CmsLayoutData> {
         { uid: 'roster-spotlight', componentName: 'RosterSpotlight' },
         { uid: 'news-section', componentName: 'NewsSection' },
         { uid: 'contact-section', componentName: 'ContactSection' },
-        { uid: 'footer', componentName: 'Footer' },
+        footer(),  // Line 479: change this
       ]
     }
 
@@ -493,7 +507,7 @@ async function layoutForPath(path: string): Promise<CmsLayoutData> {
             teamName: f('Westfield Eagles'),
           },
         },
-        { uid: 'footer', componentName: 'Footer' },
+        footer(),  // Line 497: change this
       ]
     }
 
@@ -524,7 +538,7 @@ async function layoutForPath(path: string): Promise<CmsLayoutData> {
               : {}),
           },
         },
-        { uid: 'footer', componentName: 'Footer' },
+        footer(),  // Line 520: change this
       ]
     }
 
@@ -533,7 +547,7 @@ async function layoutForPath(path: string): Promise<CmsLayoutData> {
         navbar(),
         { uid: 'nav-spacer', componentName: 'NavSpacer' },
         { uid: 'roster-spotlight', componentName: 'RosterSpotlight' },
-        { uid: 'footer', componentName: 'Footer' },
+        footer(),  // Line 527: change this
       ]
     }
 
@@ -542,7 +556,7 @@ async function layoutForPath(path: string): Promise<CmsLayoutData> {
         navbar(),
         { uid: 'nav-spacer', componentName: 'NavSpacer' },
         { uid: 'results-section', componentName: 'ResultsSection' },
-        { uid: 'footer', componentName: 'Footer' },
+        footer(),  // Line 534: change this
       ]
     }
 
@@ -551,7 +565,7 @@ async function layoutForPath(path: string): Promise<CmsLayoutData> {
         navbar(),
         { uid: 'nav-spacer', componentName: 'NavSpacer' },
         { uid: 'news-section', componentName: 'NewsSection' },
-        { uid: 'footer', componentName: 'Footer' },
+        footer(),  // Line 541: change this
       ]
     }
 
@@ -560,7 +574,7 @@ async function layoutForPath(path: string): Promise<CmsLayoutData> {
         navbar(),
         { uid: 'nav-spacer', componentName: 'NavSpacer' },
         { uid: 'contact-section', componentName: 'ContactSection' },
-        { uid: 'footer', componentName: 'Footer' },
+        footer(),  // Line 548: change this
       ]
     }
 
@@ -606,7 +620,7 @@ async function layoutForPath(path: string): Promise<CmsLayoutData> {
       navbar(),
       { uid: 'nav-spacer', componentName: 'NavSpacer' },
       ...core,
-      { uid: 'footer', componentName: 'Footer' },
+      footer(),  // Line 615-616: fix the order and use footer()
     ]
   })()
 

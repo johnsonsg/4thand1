@@ -7,13 +7,7 @@ import { Menu, Moon, Sun, X } from "lucide-react";
 import { useAtom } from 'jotai';
 import { themeModeAtom } from '@/state/atoms';
 import type { ComponentRendering, Field } from '@/lib/types/cms';
-
-type ImageValue = {
-  src: string;
-  alt: string;
-  width?: number;
-  height?: number;
-};
+import { BrandIdentity, type BrandImageValue } from "@/components/brand/BrandIdentity";
 
 type NavLinkValue = {
   label: string;
@@ -24,12 +18,43 @@ type NavbarFields = {
   brandName?: Field<string>;
   brandSubtitle?: Field<string>;
   brandMark?: Field<string>;
-  brandMarkImage?: Field<ImageValue>;
-  brandLogo?: Field<ImageValue>;
+  brandMarkImage?: Field<BrandImageValue>;
+  brandLogo?: Field<BrandImageValue>;
   navLinks?: Field<NavLinkValue[]>;
   fourthAndOneLabel?: Field<string>;
   fourthAndOneHref?: Field<string>;
-  fourthAndOneLogo?: Field<ImageValue>;
+  fourthAndOneLogo?: Field<BrandImageValue>;
+};
+
+type BrandFields = Pick<
+  NavbarFields,
+  "brandName" | "brandSubtitle" | "brandMark" | "brandMarkImage" | "brandLogo"
+>;
+
+export const brandDefaults = {
+  brandName: "Manchester Lancers",
+  brandSubtitle: "Football",
+  brandMark: "M",
+};
+
+export const resolveBrandFields = (fields: BrandFields) => {
+  const brandName = fields.brandName?.value ?? brandDefaults.brandName;
+  const brandSubtitle = fields.brandSubtitle?.value ?? brandDefaults.brandSubtitle;
+  const brandMark = fields.brandMark?.value ?? brandDefaults.brandMark;
+  const brandLogo = fields.brandLogo?.value ?? null;
+  const brandMarkImage = fields.brandMarkImage?.value ?? null;
+  const resolvedBrandImage = brandLogo ?? brandMarkImage;
+  const useBrandLogo = Boolean(brandLogo);
+
+  return {
+    brandName,
+    brandSubtitle,
+    brandMark,
+    brandLogo,
+    brandMarkImage,
+    resolvedBrandImage,
+    useBrandLogo,
+  };
 };
 
 type NavbarProps = {
@@ -44,13 +69,13 @@ export function Navbar({ rendering }: NavbarProps) {
 
   const fields = (rendering.fields ?? {}) as unknown as NavbarFields;
 
-  const brandName = fields.brandName?.value ?? 'Manchester Lancers';
-  const brandSubtitle = fields.brandSubtitle?.value ?? 'Football';
-  const brandMark = fields.brandMark?.value ?? 'M';
-  const brandLogo = fields.brandLogo?.value ?? null;
-  const brandMarkImage = fields.brandMarkImage?.value ?? null;
-  const resolvedBrandImage = brandLogo ?? brandMarkImage;
-  const useBrandLogo = Boolean(brandLogo);
+  const {
+    brandName,
+    brandSubtitle,
+    brandMark,
+    brandLogo,
+    brandMarkImage,
+  } = resolveBrandFields(fields);
 
   const navLinks: NavLinkValue[] = fields.navLinks?.value ?? [
     { label: 'Schedule', href: '/schedule' },
@@ -73,27 +98,14 @@ export function Navbar({ rendering }: NavbarProps) {
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/90 backdrop-blur-md border-b border-border">
       <nav className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
         <Link href="/" className="flex items-center gap-3">
-          {resolvedBrandImage ? (
-            <Image
-              src={resolvedBrandImage.src}
-              alt={resolvedBrandImage.alt}
-              width={resolvedBrandImage.width ?? 40}
-              height={resolvedBrandImage.height ?? 40}
-              className={useBrandLogo ? 'h-10 w-auto object-contain' : 'h-10 w-10 rounded-full object-contain'}
-            />
-          ) : (
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary">
-              <span className="font-display text-lg font-bold text-primary-foreground">{brandMark}</span>
-            </div>
-          )}
-          <div className="flex flex-col">
-            <span className="font-display text-lg font-bold uppercase leading-tight tracking-wider text-foreground">
-              {brandName}
-            </span>
-            <span className="text-xs uppercase tracking-widest text-muted-foreground">
-              {brandSubtitle}
-            </span>
-          </div>
+          <BrandIdentity
+            variant="navbar"
+            brandName={brandName}
+            brandSubtitle={brandSubtitle}
+            brandMark={brandMark}
+            brandLogo={brandLogo}
+            brandMarkImage={brandMarkImage}
+          />
         </Link>
 
         {/* Desktop nav */}

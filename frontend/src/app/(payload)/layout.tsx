@@ -1,4 +1,5 @@
 import '@payloadcms/next/css';
+import '@/styles/payload-admin.css';
 import type { ReactNode } from 'react';
 import { RootLayout, metadata, handleServerFunctions } from '@payloadcms/next/layouts';
 import type { ServerFunctionClientArgs } from 'payload';

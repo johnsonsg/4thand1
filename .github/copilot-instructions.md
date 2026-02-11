@@ -5,9 +5,9 @@
 - Next.js App Router structure under frontend/src/app with route groups: (site) for public site and (payload) for Payload admin/API (see [Docs/routing-and-pages.md](Docs/routing-and-pages.md)).
 - CMS-driven rendering flows through the catch-all route at [frontend/src/app/(site)/[[...path]]/page.tsx](frontend/src/app/(site)/%5B%5B...path%5D%5D/page.tsx): it calls `fetchLayoutData()` then renders `Placeholder` slots.
 - Layout data fetcher in [frontend/src/lib/services/layout.ts](frontend/src/lib/services/layout.ts) switches on `CMS_MODE`:
-  - mock (default): calls this app’s /api/layout.
+  - mock (default): calls this app's /api/layout.
   - custom: calls `CMS_LAYOUT_URL`.
-- Rendering pipeline: `Placeholder` maps CMS components to React components via `getComponent()` in [frontend/src/lib/rendering/componentFactory.ts](frontend/src/lib/rendering/componentFactory.ts); add new components there and implement the component under frontend/src/components.
+- Rendering pipeline: `Placeholder` maps CMS components to React components via `getComponent()` in [frontend/src/lib/utils/componentFactory.ts](frontend/src/lib/utils/componentFactory.ts); add new components there and implement the component under frontend/src/components.
 
 ## Payload CMS integration
 - Payload is embedded in the Next app under (payload):
