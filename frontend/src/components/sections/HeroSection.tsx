@@ -19,6 +19,8 @@ type HeroSectionFields = {
 
 	primaryCtaLabel?: Field<string>
 	primaryCtaHref?: Field<string>
+	primaryCtaBackgroundColor?: Field<string>
+	primaryCtaTextColor?: Field<string>
 
 	secondaryCtaLabel?: Field<string>
 	secondaryCtaHref?: Field<string>
@@ -60,6 +62,8 @@ export function HeroSection({ rendering }: HeroSectionProps) {
 	const primaryCta = {
 		label: fields.primaryCtaLabel?.value ?? 'View Schedule',
 		href: fields.primaryCtaHref?.value ?? '/schedule',
+		backgroundColor: fields.primaryCtaBackgroundColor?.value,
+		textColor: fields.primaryCtaTextColor?.value,
 	}
 	const secondaryCta = {
 		label: fields.secondaryCtaLabel?.value ?? 'Season Highlights',
@@ -72,6 +76,15 @@ export function HeroSection({ rendering }: HeroSectionProps) {
 	const quaternaryCta = {
 		label: fields.quaternaryCtaLabel?.value ?? 'View Results',
 		href: fields.quaternaryCtaHref?.value ?? '/results',
+	}
+
+	const primaryButtonSx = {
+		...(primaryCta.backgroundColor && { backgroundColor: primaryCta.backgroundColor }),
+		...(primaryCta.textColor && { color: primaryCta.textColor }),
+		'&:hover': {
+			backgroundColor: primaryCta.backgroundColor || 'hsl(var(--primary))',
+			filter: 'brightness(0.9)',
+		},
 	}
 
 	const secondaryButtonSx = (theme: any) => ({
@@ -112,7 +125,8 @@ export function HeroSection({ rendering }: HeroSectionProps) {
 						size="large"
 						endIcon={<ArrowRight className="h-4 w-4" />}
 						component={Link}
-						href={primaryCta.href}>
+						href={primaryCta.href}
+						sx={primaryButtonSx}>
 						{primaryCta.label}
 					</MuiButton>
 					<MuiButton

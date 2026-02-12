@@ -336,6 +336,14 @@ export interface HeroSetting {
   backgroundImage?: (string | null) | Media;
   primaryCtaLabel?: string | null;
   primaryCtaHref?: string | null;
+  /**
+   * Button background color. Accepts hex (#EBBA3C) or HSL (43 90% 55%).
+   */
+  primaryCtaBackgroundColor?: string | null;
+  /**
+   * Button text color. Accepts hex (#000000) or HSL (0 0% 0%).
+   */
+  primaryCtaTextColor?: string | null;
   secondaryCtaLabel?: string | null;
   secondaryCtaHref?: string | null;
   tertiaryCtaLabel?: string | null;
@@ -366,6 +374,8 @@ export interface BrandSetting {
   createdAt?: string | null;
 }
 /**
+ * Configure theme colors for light and dark modes.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "theme-settings".
  */
@@ -373,21 +383,21 @@ export interface ThemeSetting {
   id: string;
   light?: {
     /**
-     * Accepts hex (#030712) or HSL (43 90% 55%).
+     * Main brand color. Accepts hex (#EBBA3C) or HSL (43 90% 55%).
      */
     primary?: string | null;
     /**
-     * Accepts hex (#030712) or HSL (43 90% 55%).
+     * Accent color. Accepts hex (#030712) or HSL (43 90% 55%).
      */
     secondary?: string | null;
   };
   dark?: {
     /**
-     * Accepts hex (#030712) or HSL (43 90% 55%).
+     * Main brand color. Accepts hex (#EBBA3C) or HSL (43 90% 55%).
      */
     primary?: string | null;
     /**
-     * Accepts hex (#030712) or HSL (43 90% 55%).
+     * Accent color. Accepts hex (#030712) or HSL (43 90% 55%).
      */
     secondary?: string | null;
   };
@@ -444,6 +454,8 @@ export interface HeroSettingsSelect<T extends boolean = true> {
   backgroundImage?: T;
   primaryCtaLabel?: T;
   primaryCtaHref?: T;
+  primaryCtaBackgroundColor?: T;
+  primaryCtaTextColor?: T;
   secondaryCtaLabel?: T;
   secondaryCtaHref?: T;
   tertiaryCtaLabel?: T;

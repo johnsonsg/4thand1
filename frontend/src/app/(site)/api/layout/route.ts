@@ -34,6 +34,9 @@ type HeroSettings = {
 
   primaryCtaLabel?: string | null
   primaryCtaHref?: string | null
+  primaryCtaBackgroundColor?: string | null
+  primaryCtaTextColor?: string | null
+
   secondaryCtaLabel?: string | null
   secondaryCtaHref?: string | null
   tertiaryCtaLabel?: string | null
@@ -258,6 +261,9 @@ async function getHeroSettings(): Promise<HeroSettings> {
 
       primaryCtaLabel: raw?.primaryCtaLabel ?? null,
       primaryCtaHref: raw?.primaryCtaHref ?? null,
+      primaryCtaBackgroundColor: raw?.primaryCtaBackgroundColor ?? null,
+      primaryCtaTextColor: raw?.primaryCtaTextColor ?? null,
+
       secondaryCtaLabel: raw?.secondaryCtaLabel ?? null,
       secondaryCtaHref: raw?.secondaryCtaHref ?? null,
       tertiaryCtaLabel: raw?.tertiaryCtaLabel ?? null,
@@ -440,6 +446,8 @@ async function layoutForPath(path: string): Promise<CmsLayoutData> {
             backgroundImage: f(heroBackground),
             primaryCtaLabel: f(pick(hero.primaryCtaLabel, DEFAULT_HERO.ctas.primaryCtaLabel)),
             primaryCtaHref: f(pick(hero.primaryCtaHref, DEFAULT_HERO.ctas.primaryCtaHref)),
+            primaryCtaBackgroundColor: f(hero.primaryCtaBackgroundColor ?? null),
+            primaryCtaTextColor: f(hero.primaryCtaTextColor ?? null),
             secondaryCtaLabel: f(pick(hero.secondaryCtaLabel, DEFAULT_HERO.ctas.secondaryCtaLabel)),
             secondaryCtaHref: f(pick(hero.secondaryCtaHref, DEFAULT_HERO.ctas.secondaryCtaHref)),
             tertiaryCtaLabel: f(pick(hero.tertiaryCtaLabel, DEFAULT_HERO.ctas.tertiaryCtaLabel)),
