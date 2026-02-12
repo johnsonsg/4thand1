@@ -1,0 +1,32 @@
+import type { Metadata } from "next";
+
+import { Navbar } from "@/components/header/Navbar";
+import { Footer } from "@/components/footer/Footer";
+import NavSpacer from "@/components/rendering/NavSpacer";
+import { ResultsSection } from "@/components/sections/ResultsSection";
+import { ThemeTokensEffect } from "@/lib/theme/ThemeTokensEffect";
+import { buildThemeStyle } from "@/lib/theme/buildThemeStyle";
+import { getSiteLayout } from "@/lib/services/siteLayout";
+
+export const metadata: Metadata = {
+  title: "Results | Westfield Eagles Football",
+  description: "Recent game results for the Westfield Eagles football program.",
+};
+
+export default async function ResultsPage() {
+  const { navbar, footer, theme } = await getSiteLayout("/results");
+  const themeStyle = buildThemeStyle(theme);
+
+  return (
+    <>
+      {themeStyle ? <style dangerouslySetInnerHTML={{ __html: themeStyle }} /> : null}
+      <ThemeTokensEffect theme={theme} />
+      <Navbar rendering={navbar} />
+      <NavSpacer />
+      <main>
+        <ResultsSection />
+      </main>
+      <Footer rendering={footer} />
+    </>
+  );
+}

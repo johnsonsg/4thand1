@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
-import { headers } from "next/headers";
 import { RosterTable } from "@/components/sections/RosterTable";
 import { Navbar } from "@/components/header/Navbar";
 import { Footer } from "@/components/footer/Footer";
 import NavSpacer from "@/components/rendering/NavSpacer";
-import type { CmsLayoutData, ComponentRendering } from "@/lib/types/cms";
-import { fetchLayoutData } from "@/lib/services/layout";
+import { ThemeTokensEffect } from "@/lib/theme/ThemeTokensEffect";
+import { buildThemeStyle } from "@/lib/theme/buildThemeStyle";
+import { getSiteLayout } from "@/lib/services/siteLayout";
 
 export const metadata: Metadata = {
   title: "Roster | Westfield Eagles Football",
@@ -14,22 +14,14 @@ export const metadata: Metadata = {
 };
 
 export default async function RosterPage() {
-  const reqHeaders = await headers();
-  const layoutData = (await fetchLayoutData({
-    path: "/roster",
-    headers: reqHeaders,
-  })) as CmsLayoutData;
-  const main = layoutData.cms.route?.placeholders?.main ?? [];
-  const navbarRendering =
-    main.find((component) => component.componentName === "Navbar") ??
-    ({ componentName: "Navbar", fields: {} } as ComponentRendering);
-  const footerRendering =
-    main.find((component) => component.componentName === "Footer") ??
-    ({ componentName: "Footer", fields: {} } as ComponentRendering);
+  const { navbar, footer, theme } = await getSiteLayout("/roster");
+  const themeStyle = buildThemeStyle(theme);
 
   return (
     <>
-      <Navbar rendering={navbarRendering} />
+      {themeStyle ? <style dangerouslySetInnerHTML={{ __html: themeStyle }} /> : null}
+      <ThemeTokensEffect theme={theme} />
+      <Navbar rendering={navbar} />
       <NavSpacer />
       <main>
         <section className="pt-28 pb-24">
@@ -46,7 +38,7 @@ export default async function RosterPage() {
           </div>
         </section>
       </main>
-      <Footer rendering={footerRendering} />
+      <Footer rendering={footer} />
     </>
   );
 }

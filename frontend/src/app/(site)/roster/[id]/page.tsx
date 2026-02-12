@@ -1,15 +1,15 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import { players, getPlayerById } from "@/lib/players";
 import { ArrowLeft } from "lucide-react";
 import { Navbar } from "@/components/header/Navbar";
 import { Footer } from "@/components/footer/Footer";
 import NavSpacer from "@/components/rendering/NavSpacer";
-import type { CmsLayoutData, ComponentRendering } from "@/lib/types/cms";
-import { fetchLayoutData } from "@/lib/services/layout";
+import { ThemeTokensEffect } from "@/lib/theme/ThemeTokensEffect";
+import { buildThemeStyle } from "@/lib/theme/buildThemeStyle";
+import { getSiteLayout } from "@/lib/services/siteLayout";
 
 export function generateStaticParams() {
   return players.map((player) => ({ id: player.id }));
@@ -38,22 +38,14 @@ export default async function PlayerProfilePage({
   const player = getPlayerById(id);
   if (!player) notFound();
 
-  const reqHeaders = await headers();
-  const layoutData = (await fetchLayoutData({
-    path: "/roster",
-    headers: reqHeaders,
-  })) as CmsLayoutData;
-  const main = layoutData.cms.route?.placeholders?.main ?? [];
-  const navbarRendering =
-    main.find((component) => component.componentName === "Navbar") ??
-    ({ componentName: "Navbar", fields: {} } as ComponentRendering);
-  const footerRendering =
-    main.find((component) => component.componentName === "Footer") ??
-    ({ componentName: "Footer", fields: {} } as ComponentRendering);
+  const { navbar, footer, theme } = await getSiteLayout("/roster");
+  const themeStyle = buildThemeStyle(theme);
 
   return (
     <>
-      <Navbar rendering={navbarRendering} />
+      {themeStyle ? <style dangerouslySetInnerHTML={{ __html: themeStyle }} /> : null}
+      <ThemeTokensEffect theme={theme} />
+      <Navbar rendering={navbar} />
       <NavSpacer />
       <main>
         <section className="pt-28 pb-24">
@@ -167,7 +159,7 @@ export default async function PlayerProfilePage({
           </div>
         </section>
       </main>
-      <Footer rendering={footerRendering} />
+      <Footer rendering={footer} />
     </>
   );
 }
