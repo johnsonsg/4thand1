@@ -3,6 +3,7 @@
 import * as React from 'react';
 import type { EmotionCache } from '@emotion/cache';
 import { CacheProvider } from '@emotion/react';
+import CssBaseline from '@mui/material/CssBaseline';
 import { StyledEngineProvider, ThemeProvider } from '@mui/material/styles';
 import { useAtomValue } from 'jotai';
 import { Inter, Oswald } from 'next/font/google';
@@ -36,6 +37,7 @@ export function Providers({ children, emotionCache = clientSideEmotionCache }: P
     <CacheProvider value={emotionCache}>
       <StyledEngineProvider injectFirst>
         <ThemeProvider theme={theme}>
+          <CssBaseline enableColorScheme />
           <ThemeEffect />
           <ClerkControls />
           <div className={`${oswald.variable} ${inter.variable}`}>{children}</div>
