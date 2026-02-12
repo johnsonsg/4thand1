@@ -8,6 +8,7 @@ import Users from './src/collections/Users'
 import Media from './src/collections/Media'
 import HeroSettings from './src/globals/HeroSettings'
 import BrandSettings from './src/globals/BrandSettings'
+import ThemeSettings from './src/globals/ThemeSettings'
 import StatsSettings from './src/globals/StatsSettings'
 import ScheduleSettings from './src/globals/ScheduleSettings'
 
@@ -29,54 +30,11 @@ export default buildConfig({
   admin: {
     user: Users.slug,
     importMap: {
-      // Custom admin fields are resolved by string path, not TS imports.
       baseDir: __dirname
     }
   },
   collections: [Users, Media],
-  globals: [
-    HeroSettings,
-    BrandSettings,
-    StatsSettings,
-    ScheduleSettings,
-    {
-      slug: "theme-settings",
-      fields: [
-        {
-          name: "light",
-          type: "group",
-          fields: [
-            {
-              name: "primary",
-              type: "text",
-              admin: { components: { Field: "/src/components/ColorPickerField#default" } }
-            },
-            {
-              name: "secondary",
-              type: "text",
-              admin: { components: { Field: "/src/components/ColorPickerField#default" } }
-            }
-          ]
-        },
-        {
-          name: "dark",
-          type: "group",
-          fields: [
-            {
-              name: "primary",
-              type: "text",
-              admin: { components: { Field: "/src/components/ColorPickerField#default" } }
-            },
-            {
-              name: "secondary",
-              type: "text",
-              admin: { components: { Field: "/src/components/ColorPickerField#default" } }
-            }
-          ]
-        }
-      ]
-    }
-  ],
+  globals: [HeroSettings, BrandSettings, ThemeSettings, StatsSettings, ScheduleSettings],
   typescript: {
     outputFile: path.resolve(process.cwd(), 'src', 'payload-types.ts'),
   },

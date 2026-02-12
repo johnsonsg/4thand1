@@ -4,12 +4,18 @@ const tokenFields = (): Field[] => [
   {
     name: 'primary',
     type: 'text',
-    admin: { description: 'Accepts hex (#030712) or HSL (43 90% 55%).' },
+    admin: {
+      description: 'Accepts hex (#030712) or HSL (43 90% 55%).',
+      components: { Field: '/src/components/ColorPickerField#default' },
+    },
   },
   {
     name: 'secondary',
     type: 'text',
-    admin: { description: 'Accepts hex (#030712) or HSL (43 90% 55%).' },
+    admin: {
+      description: 'Accepts hex (#030712) or HSL (43 90% 55%).',
+      components: { Field: '/src/components/ColorPickerField#default' },
+    },
   },
 ]
 

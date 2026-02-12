@@ -18,6 +18,12 @@ export function getTheme(mode: PaletteMode) {
             fontWeight: 600,
             letterSpacing: '0.08em',
           },
+          containedPrimary: {
+            '&:hover': {
+              backgroundColor: 'hsl(var(--primary))',
+              filter: 'brightness(0.9)',
+            },
+          },
         },
       },
       MuiChip: {

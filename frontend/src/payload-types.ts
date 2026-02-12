@@ -90,16 +90,16 @@ export interface Config {
   globals: {
     'hero-settings': HeroSetting;
     'brand-settings': BrandSetting;
+    'theme-settings': ThemeSetting;
     'stats-settings': StatsSetting;
     'schedule-settings': ScheduleSetting;
-    'theme-settings': ThemeSetting;
   };
   globalsSelect: {
     'hero-settings': HeroSettingsSelect<false> | HeroSettingsSelect<true>;
     'brand-settings': BrandSettingsSelect<false> | BrandSettingsSelect<true>;
+    'theme-settings': ThemeSettingsSelect<false> | ThemeSettingsSelect<true>;
     'stats-settings': StatsSettingsSelect<false> | StatsSettingsSelect<true>;
     'schedule-settings': ScheduleSettingsSelect<false> | ScheduleSettingsSelect<true>;
-    'theme-settings': ThemeSettingsSelect<false> | ThemeSettingsSelect<true>;
   };
   locale: null;
   user: User;
@@ -367,6 +367,35 @@ export interface BrandSetting {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "theme-settings".
+ */
+export interface ThemeSetting {
+  id: string;
+  light?: {
+    /**
+     * Accepts hex (#030712) or HSL (43 90% 55%).
+     */
+    primary?: string | null;
+    /**
+     * Accepts hex (#030712) or HSL (43 90% 55%).
+     */
+    secondary?: string | null;
+  };
+  dark?: {
+    /**
+     * Accepts hex (#030712) or HSL (43 90% 55%).
+     */
+    primary?: string | null;
+    /**
+     * Accepts hex (#030712) or HSL (43 90% 55%).
+     */
+    secondary?: string | null;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "stats-settings".
  */
 export interface StatsSetting {
@@ -401,23 +430,6 @@ export interface ScheduleSetting {
         id?: string | null;
       }[]
     | null;
-  updatedAt?: string | null;
-  createdAt?: string | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "theme-settings".
- */
-export interface ThemeSetting {
-  id: string;
-  light?: {
-    primary?: string | null;
-    secondary?: string | null;
-  };
-  dark?: {
-    primary?: string | null;
-    secondary?: string | null;
-  };
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -458,6 +470,27 @@ export interface BrandSettingsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "theme-settings_select".
+ */
+export interface ThemeSettingsSelect<T extends boolean = true> {
+  light?:
+    | T
+    | {
+        primary?: T;
+        secondary?: T;
+      };
+  dark?:
+    | T
+    | {
+        primary?: T;
+        secondary?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "stats-settings_select".
  */
 export interface StatsSettingsSelect<T extends boolean = true> {
@@ -490,27 +523,6 @@ export interface ScheduleSettingsSelect<T extends boolean = true> {
         result?: T;
         outcome?: T;
         id?: T;
-      };
-  updatedAt?: T;
-  createdAt?: T;
-  globalType?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "theme-settings_select".
- */
-export interface ThemeSettingsSelect<T extends boolean = true> {
-  light?:
-    | T
-    | {
-        primary?: T;
-        secondary?: T;
-      };
-  dark?:
-    | T
-    | {
-        primary?: T;
-        secondary?: T;
       };
   updatedAt?: T;
   createdAt?: T;
