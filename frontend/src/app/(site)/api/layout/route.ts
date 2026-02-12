@@ -563,7 +563,17 @@ async function layoutForPath(path: string): Promise<CmsLayoutData> {
         navbar(),
         { uid: 'nav-spacer', componentName: 'NavSpacer' },
         { uid: 'roster-spotlight', componentName: 'RosterSpotlight' },
-        footer(),  // Line 527: change this
+        footer(),
+      ]
+    }
+
+    if (path === '/roster/[id]') {
+      const playerId = path.split('/')[2]
+      return [
+        navbar(),
+        { uid: 'nav-spacer', componentName: 'NavSpacer' },
+        { uid: 'player-profile', componentName: 'PlayerProfile', fields: { playerId: f(playerId) } },
+        { uid: 'footer', componentName: 'Footer' },
       ]
     }
 

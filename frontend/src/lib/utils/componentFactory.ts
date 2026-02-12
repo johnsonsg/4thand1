@@ -13,6 +13,8 @@ import { ResultsSection } from '@/components/sections/ResultsSection';
 import { ContactSection } from '@/components/sections/ContactSection';
 import { Footer } from '@/components/footer/Footer';
 import { FourthAndOneContent } from '@/components/sections/FourthAndOneContent';
+import { RosterTable } from '@/components/sections/RosterTable';
+import { RosterPage } from '@/components/sections/RosterPage';
 
 export function getComponent(componentName: string) {
   switch (componentName) {
@@ -26,6 +28,8 @@ export function getComponent(componentName: string) {
       return ScheduleSection;
     case 'RosterSpotlight':
       return RosterSpotlight;
+    case 'RosterTable':
+      return RosterTable
     case 'NewsSection':
       return NewsSection;
     case 'ResultsSection':
@@ -44,6 +48,8 @@ export function getComponent(componentName: string) {
       return PromoCard;
     case 'FeatureList':
       return FeatureList;
+    case 'RosterPage':
+      return RosterPage;
     default:
       return null;
   }
