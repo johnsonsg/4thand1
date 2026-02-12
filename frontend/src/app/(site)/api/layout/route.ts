@@ -93,6 +93,8 @@ type ScheduleSettings = {
   seasonLabel?: string | null
   title?: string | null
   record?: string | null
+  winChipBackgroundColor?: string | null
+  winChipTextColor?: string | null
   games?: ScheduleGame[] | null
 }
 
@@ -346,6 +348,8 @@ async function getScheduleSettings(): Promise<ScheduleSettings> {
       seasonLabel: raw?.seasonLabel ?? null,
       title: raw?.title ?? null,
       record: raw?.record ?? null,
+      winChipBackgroundColor: raw?.winChipBackgroundColor ?? null,
+      winChipTextColor: raw?.winChipTextColor ?? null,
       games: raw?.games ?? null,
     }
   } catch {
@@ -473,6 +477,8 @@ async function layoutForPath(path: string): Promise<CmsLayoutData> {
             seasonLabel: f(schedule.seasonLabel ?? '2025 Season'),
             title: f(schedule.title ?? 'Game Schedule'),
             record: f(schedule.record ?? 'Record: 3-1'),
+            winChipBackgroundColor: f(schedule.winChipBackgroundColor ?? null),
+            winChipTextColor: f(schedule.winChipTextColor ?? null),
             ...(schedule.games?.length
               ? {
                   games: f(
@@ -530,6 +536,8 @@ async function layoutForPath(path: string): Promise<CmsLayoutData> {
             seasonLabel: f(schedule.seasonLabel ?? '2025 Season'),
             title: f(schedule.title ?? 'Game Schedule'),
             record: f(schedule.record ?? 'Record: 3-1'),
+            winChipBackgroundColor: f(schedule.winChipBackgroundColor ?? null),
+            winChipTextColor: f(schedule.winChipTextColor ?? null),
             ...(schedule.games?.length
               ? {
                   games: f(

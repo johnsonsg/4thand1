@@ -429,6 +429,14 @@ export interface ScheduleSetting {
   seasonLabel?: string | null;
   title?: string | null;
   record?: string | null;
+  /**
+   * Background color for Win (W) outcome chips. Accepts hex or HSL.
+   */
+  winChipBackgroundColor?: string | null;
+  /**
+   * Text color for Win (W) outcome chips. Accepts hex or HSL.
+   */
+  winChipTextColor?: string | null;
   games?:
     | {
         dateTime: string;
@@ -525,6 +533,8 @@ export interface ScheduleSettingsSelect<T extends boolean = true> {
   seasonLabel?: T;
   title?: T;
   record?: T;
+  winChipBackgroundColor?: T;
+  winChipTextColor?: T;
   games?:
     | T
     | {

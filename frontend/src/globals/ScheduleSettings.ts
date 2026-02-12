@@ -4,18 +4,50 @@ const ScheduleSettings: GlobalConfig = {
   slug: 'schedule-settings',
   label: 'Schedule Settings',
   fields: [
-    { name: 'seasonLabel', label: 'Season Label', type: 'text' },
-    { name: 'title', label: 'Title', type: 'text' },
-    { name: 'record', label: 'Record', type: 'text' },
+    { name: 'seasonLabel', type: 'text', label: 'Season Label' },
+    { name: 'title', type: 'text', label: 'Section Title' },
+    { name: 'record', type: 'text', label: 'Team Record' },
+    {
+      type: 'collapsible',
+      label: 'Win Chip Styling',
+      admin: { initCollapsed: true },
+      fields: [
+        {
+          type: 'row',
+          fields: [
+            {
+              name: 'winChipBackgroundColor',
+              type: 'text',
+              label: 'Background Color',
+              admin: {
+                description: 'Background color for Win (W) outcome chips. Accepts hex or HSL.',
+                components: { Field: '/src/components/ColorPickerField#default' },
+                width: '50%',
+              },
+            },
+            {
+              name: 'winChipTextColor',
+              type: 'text',
+              label: 'Text Color',
+              admin: {
+                description: 'Text color for Win (W) outcome chips. Accepts hex or HSL.',
+                components: { Field: '/src/components/ColorPickerField#default' },
+                width: '50%',
+              },
+            },
+          ],
+        },
+      ],
+    },
     {
       name: 'games',
-      label: 'Games',
       type: 'array',
+      label: 'Games',
       fields: [
         {
           name: 'dateTime',
-          label: 'Date & Time',
           type: 'text',
+          label: 'Date & Time',
           required: true,
           admin: {
             components: {
@@ -23,19 +55,17 @@ const ScheduleSettings: GlobalConfig = {
             },
           },
         },
-        { name: 'opponent', label: 'Opponent', type: 'text', required: true },
+        { name: 'opponent', type: 'text', required: true },
         {
           name: 'location',
-          label: 'Location',
           type: 'select',
           required: true,
           options: ['Home', 'Away'],
         },
-        { name: 'status', label: 'Status', type: 'select', required: true, options: ['final', 'upcoming'] },
-        { name: 'result', label: 'Score (ex: 42-0)', type: 'text' },
+        { name: 'status', type: 'select', required: true, options: ['final', 'upcoming'] },
+        { name: 'result', type: 'text' },
         {
           name: 'outcome',
-          label: 'Outcome',
           type: 'select',
           options: ['W', 'L', 'T', 'BYE'],
         },
