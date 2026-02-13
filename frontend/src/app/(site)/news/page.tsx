@@ -24,7 +24,7 @@ export default async function NewsPage() {
       <Navbar rendering={navbar} />
       <NavSpacer />
       <main>
-        <NewsSection />
+        <NewsSection showViewAll={false} />
       </main>
       <Footer rendering={footer} />
     </>

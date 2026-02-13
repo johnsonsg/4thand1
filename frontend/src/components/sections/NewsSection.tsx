@@ -1,39 +1,19 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import MuiCard from "@mui/material/Card";
 import MuiCardContent from "@mui/material/CardContent";
+import { articles } from "@/lib/articles";
 
-const articles = [
-  {
-    title: "Eagles Clinch Third Straight Victory with Dominant Performance",
-    date: "Sep 27, 2025",
-    excerpt:
-      "A commanding 42-7 win over the Hamilton Hawks puts the Eagles at 3-1 heading into the second half of the season.",
-    image: "/images/news-1.jpg",
-    category: "Game Recap",
-  },
-  {
-    title: "Fall Camp Wrap-Up: New Faces Ready to Contribute",
-    date: "Aug 20, 2025",
-    excerpt:
-      "Head Coach Rivera highlights key newcomers who impressed during fall training camp and are poised for breakout seasons.",
-    image: "/images/news-2.jpg",
-    category: "Team News",
-  },
-  {
-    title: "Homecoming Game Set for October 17 Against Rival Central",
-    date: "Sep 15, 2025",
-    excerpt:
-      "Mark your calendars for the biggest game of the year. Pre-game festivities start at 4 PM with kickoff at 7 PM.",
-    image: "/images/news-3.jpg",
-    category: "Events",
-  },
-];
 
-export function NewsSection() {
+type NewsSectionProps = {
+  showViewAll?: boolean;
+};
+
+export function NewsSection({ showViewAll = true }: NewsSectionProps) {
   return (
-    <section id="news" className="py-24">
+    <section id="news" className="py-14">
       <div className="mx-auto max-w-7xl px-6">
         <div className="mb-12 flex items-end justify-between">
           <div>
@@ -44,18 +24,22 @@ export function NewsSection() {
               Eagles News
             </h2>
           </div>
-          <a
-            href="#"
-            className="hidden font-display text-sm font-medium uppercase tracking-wider text-primary transition-colors hover:text-primary/80 md:block"
-          >
-            View All &rarr;
-          </a>
+          {showViewAll ? (
+            <Link
+              href="/news"
+              className="hidden font-display text-sm font-medium uppercase tracking-wider text-primary transition-colors hover:text-primary/80 md:block"
+            >
+              View All &rarr;
+            </Link>
+          ) : null}
         </div>
 
         <div className="grid gap-6 md:grid-cols-3">
           {articles.map((article) => (
             <MuiCard
               key={article.title}
+              component={Link}
+              href={`/news/${article.slug}`}
               sx={{
                 cursor: "pointer",
                 overflow: "hidden",
