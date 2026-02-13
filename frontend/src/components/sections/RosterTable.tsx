@@ -10,18 +10,22 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Chip from "@mui/material/Chip";
-import { players } from "@/lib/players";
+import { players as fallbackPlayers, type Player } from "@/lib/players";
 
 const positionGroups = ["All", "Offense", "Defense", "Special Teams"] as const;
 
-export function RosterTable() {
-  const [activeGroup, setActiveGroup] = useState<string>("All");
+type RosterTableProps = {
+  players?: Player[];
+};
+
+export function RosterTable({ players = fallbackPlayers }: RosterTableProps) {
+  const [activeGroup, setActiveGroup] = useState<"All" | "Offense" | "Defense" | "Special Teams">("All");
   const router = useRouter();
 
   const filtered =
     activeGroup === "All"
       ? players
-      : players.filter((p) => p.positionGroup === activeGroup);
+      : players.filter((p) => p.positionGroup.includes(activeGroup));
 
   return (
     <div>
@@ -122,7 +126,7 @@ export function RosterTable() {
                         src={player.image || "/placeholder.svg"}
                         alt={player.name}
                         fill
-                        className="object-cover"
+                        className="object-cover object-top"
                       />
                     </div>
                     <div>

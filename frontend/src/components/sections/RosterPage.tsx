@@ -1,11 +1,13 @@
 "use client";
 
 import { RosterTable } from "@/components/sections/RosterTable";
+import { players as fallbackPlayers, type Player } from "@/lib/players";
 import type { ComponentRendering, Field } from "@/lib/types/cms";
 
 type RosterPageFields = {
   seasonLabel?: Field<string>;
   title?: Field<string>;
+  players?: Field<Player[]>;
 };
 
 type RosterPageProps = {
@@ -16,6 +18,7 @@ export function RosterPage({ rendering }: RosterPageProps) {
   const fields = (rendering.fields ?? {}) as unknown as RosterPageFields;
   const seasonLabel = fields.seasonLabel?.value ?? "2025-2026 Season";
   const title = fields.title?.value ?? "Full Roster";
+  const rosterPlayers = fields.players?.value ?? fallbackPlayers;
 
   return (
     <section className="py-14">
@@ -28,7 +31,7 @@ export function RosterPage({ rendering }: RosterPageProps) {
             {title}
           </h1>
         </div>
-        <RosterTable />
+        <RosterTable players={rosterPlayers} />
       </div>
     </section>
   );

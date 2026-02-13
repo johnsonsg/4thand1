@@ -70,6 +70,7 @@ export interface Config {
     users: User;
     media: Media;
     'tenant-settings': TenantSetting;
+    players: Player;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -80,6 +81,7 @@ export interface Config {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     'tenant-settings': TenantSettingsSelect<false> | TenantSettingsSelect<true>;
+    players: PlayersSelect<false> | PlayersSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -276,6 +278,46 @@ export interface TenantSetting {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "players".
+ */
+export interface Player {
+  id: string;
+  /**
+   * URL slug, e.g. "marcus-johnson"
+   */
+  slug?: string | null;
+  name: string;
+  number?: string | null;
+  position?: string | null;
+  positionGroup?: ('Offense' | 'Defense' | 'Special Teams')[] | null;
+  /**
+   * Graduation year (e.g., 2026).
+   */
+  year?: string | null;
+  height?: string | null;
+  weight?: string | null;
+  image?: (string | null) | Media;
+  stats?: string | null;
+  /**
+   * Link to the player Hudl profile (e.g., https://www.hudl.com/...).
+   */
+  hudlUrl?: string | null;
+  bio?: string | null;
+  accolades?:
+    | {
+        title: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Optional ordering value (lower comes first).
+   */
+  sortOrder?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -309,6 +351,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'tenant-settings';
         value: string | TenantSetting;
+      } | null)
+    | ({
+        relationTo: 'players';
+        value: string | Player;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -472,6 +518,33 @@ export interface TenantSettingsSelect<T extends boolean = true> {
               id?: T;
             };
       };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "players_select".
+ */
+export interface PlayersSelect<T extends boolean = true> {
+  slug?: T;
+  name?: T;
+  number?: T;
+  position?: T;
+  positionGroup?: T;
+  year?: T;
+  height?: T;
+  weight?: T;
+  image?: T;
+  stats?: T;
+  hudlUrl?: T;
+  bio?: T;
+  accolades?:
+    | T
+    | {
+        title?: T;
+        id?: T;
+      };
+  sortOrder?: T;
   updatedAt?: T;
   createdAt?: T;
 }

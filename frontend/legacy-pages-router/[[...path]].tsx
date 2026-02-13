@@ -1,9 +1,9 @@
 import * as React from 'react';
 import type { GetServerSideProps } from 'next';
 import type { CmsLayoutData } from '@/lib/types/cms';
-import { Placeholder } from '@/components/rendering/Placeholder';
+import Placeholder from '@/lib/utils/Placeholder';
 import { fetchLayoutData } from '@/lib/services/layout';
-import { ThemeTokensEffect, type ThemeConfig } from '@/components/theme/ThemeTokensEffect';
+import { ThemeTokensEffect, type ThemeConfig } from '@/lib/theme/ThemeTokensEffect';
 
 type PageProps = {
   layoutData: CmsLayoutData;

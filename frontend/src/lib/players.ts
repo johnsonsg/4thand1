@@ -1,14 +1,19 @@
+export type PositionGroup = "Offense" | "Defense" | "Special Teams";
+
+export const toGroups = (...groups: PositionGroup[]): PositionGroup[] => groups;
+
 export interface Player {
   id: string;
   name: string;
   number: string;
   position: string;
-  positionGroup: "Offense" | "Defense" | "Special Teams";
-  year: "Freshman" | "Sophomore" | "Junior" | "Senior";
+  positionGroup: PositionGroup[];
+  year: string;
   height: string;
   weight: string;
   image: string;
   stats: string;
+  hudlUrl?: string;
   bio: string;
   accolades: string[];
 }
@@ -19,7 +24,7 @@ export const players: Player[] = [
     name: "Marcus Johnson",
     number: "7",
     position: "Quarterback",
-    positionGroup: "Offense",
+    positionGroup: toGroups("Offense"),
     year: "Senior",
     height: "6'2\"",
     weight: "195 lbs",
@@ -37,7 +42,7 @@ export const players: Player[] = [
     name: "David Chen",
     number: "22",
     position: "Running Back",
-    positionGroup: "Offense",
+    positionGroup: toGroups("Offense"),
     year: "Junior",
     height: "5'10\"",
     weight: "185 lbs",
@@ -54,7 +59,7 @@ export const players: Player[] = [
     name: "James Williams",
     number: "55",
     position: "Linebacker",
-    positionGroup: "Defense",
+    positionGroup: toGroups("Defense"),
     year: "Senior",
     height: "6'1\"",
     weight: "225 lbs",
@@ -72,7 +77,7 @@ export const players: Player[] = [
     name: "Tyler Martinez",
     number: "11",
     position: "Wide Receiver",
-    positionGroup: "Offense",
+    positionGroup: toGroups("Offense"),
     year: "Senior",
     height: "6'0\"",
     weight: "175 lbs",
@@ -89,7 +94,7 @@ export const players: Player[] = [
     name: "Ryan O'Connor",
     number: "88",
     position: "Tight End",
-    positionGroup: "Offense",
+    positionGroup: toGroups("Offense"),
     year: "Junior",
     height: "6'4\"",
     weight: "230 lbs",
@@ -103,7 +108,7 @@ export const players: Player[] = [
     name: "DeAndre Smith",
     number: "3",
     position: "Cornerback",
-    positionGroup: "Defense",
+    positionGroup: toGroups("Defense"),
     year: "Senior",
     height: "5'11\"",
     weight: "170 lbs",
@@ -120,7 +125,7 @@ export const players: Player[] = [
     name: "Ethan Brooks",
     number: "74",
     position: "Offensive Tackle",
-    positionGroup: "Offense",
+    positionGroup: toGroups("Offense"),
     year: "Senior",
     height: "6'5\"",
     weight: "285 lbs",
@@ -137,7 +142,7 @@ export const players: Player[] = [
     name: "Kai Nakamura",
     number: "44",
     position: "Safety",
-    positionGroup: "Defense",
+    positionGroup: toGroups("Defense"),
     year: "Junior",
     height: "6'0\"",
     weight: "190 lbs",

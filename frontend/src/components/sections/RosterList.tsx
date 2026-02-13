@@ -20,12 +20,12 @@ type RosterListProps = {
 };
 
 export function RosterList({ rendering }: RosterListProps) {
-  const [activeGroup, setActiveGroup] = useState<string>("All");
+  const [activeGroup, setActiveGroup] = useState<"All" | "Offense" | "Defense" | "Special Teams">("All");
 
   const filtered =
     activeGroup === "All"
       ? players
-      : players.filter((p) => p.positionGroup === activeGroup);
+      : players.filter((p) => p.positionGroup.includes(activeGroup));
 
   return (
     <section className="py-14">

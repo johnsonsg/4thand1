@@ -2,15 +2,21 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { players } from "@/lib/players";
-import type { ComponentRendering } from "@/lib/types/cms";
+import { players as fallbackPlayers, type Player } from "@/lib/players";
+import type { ComponentRendering, Field } from "@/lib/types/cms";
 
 type RosterSpotlightProps = {
   rendering: ComponentRendering;
 };
 
+type RosterSpotlightFields = {
+  players?: Field<Player[]>;
+};
+
 export function RosterSpotlight({ rendering }: RosterSpotlightProps) {
-  const spotlightPlayers = players.slice(0, 3);
+  const fields = (rendering.fields ?? {}) as unknown as RosterSpotlightFields;
+  const list = fields.players?.value ?? fallbackPlayers;
+  const spotlightPlayers = list.slice(0, 3);
 
   return (
     <section id="roster" className="bg-secondary/50 py-14">

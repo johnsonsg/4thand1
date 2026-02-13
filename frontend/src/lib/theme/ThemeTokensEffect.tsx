@@ -48,6 +48,7 @@ export function ThemeTokensEffect({ theme }: ThemeTokensEffectProps) {
 
     const root = document.documentElement;
 
+
     if (tokens.background) root.style.setProperty('--background', normalizeThemeToken(tokens.background));
     if (tokens.foreground) root.style.setProperty('--foreground', normalizeThemeToken(tokens.foreground));
     if (tokens.card) root.style.setProperty('--card', normalizeThemeToken(tokens.card));

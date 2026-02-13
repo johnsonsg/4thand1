@@ -2,17 +2,19 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { players, getPlayerById } from "@/lib/players";
+import { getPlayerBySlug, getPlayerSlugs } from "@/lib/services/players";
 import { ArrowLeft } from "lucide-react";
 import { Navbar } from "@/components/header/Navbar";
 import { Footer } from "@/components/footer/Footer";
 import NavSpacer from "@/components/rendering/NavSpacer";
+import { HudlIconButton } from "@/components/buttons/HudlIconButton";
 import { ThemeTokensEffect } from "@/lib/theme/ThemeTokensEffect";
 import { buildThemeStyle } from "@/lib/theme/buildThemeStyle";
 import { getSiteLayout } from "@/lib/services/siteLayout";
 
-export function generateStaticParams() {
-  return players.map((player) => ({ id: player.id }));
+export async function generateStaticParams() {
+  const slugs = await getPlayerSlugs();
+  return slugs.map((id) => ({ id }));
 }
 
 export async function generateMetadata({
@@ -21,7 +23,7 @@ export async function generateMetadata({
   params: Promise<{ id: string }>;
 }): Promise<Metadata> {
   const { id } = await params;
-  const player = getPlayerById(id);
+  const player = await getPlayerBySlug(id);
   if (!player) return { title: "Player Not Found" };
   return {
     title: `${player.name} #${player.number} | Westfield Eagles Football`,
@@ -35,7 +37,7 @@ export default async function PlayerProfilePage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const player = getPlayerById(id);
+  const player = await getPlayerBySlug(id);
   if (!player) notFound();
 
   const { navbar, footer, theme } = await getSiteLayout("/roster");
@@ -83,13 +85,16 @@ export default async function PlayerProfilePage({
                     #{player.number}
                   </span>
                   <span className="rounded bg-secondary px-3 py-1 font-display text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                    {player.positionGroup}
+                    {player.positionGroup.join(" / ")}
                   </span>
                 </div>
 
-                <h1 className="mb-2 font-display text-4xl font-bold uppercase tracking-tight text-foreground md:text-5xl">
-                  {player.name}
-                </h1>
+                <div className="mb-2 flex flex-wrap items-center gap-3">
+                  <h1 className="font-display text-4xl font-bold uppercase tracking-tight text-foreground md:text-5xl">
+                    {player.name}
+                  </h1>
+                  {player.hudlUrl ? <HudlIconButton href={player.hudlUrl} /> : null}
+                </div>
 
                 <p className="mb-8 font-display text-lg font-medium uppercase tracking-wider text-muted-foreground">
                   {player.position}

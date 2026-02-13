@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { getPlayerById } from "@/lib/players";
 import type { ComponentRendering, Field } from "@/lib/types/cms";
+import { HudlIconButton } from "@/components/buttons/HudlIconButton";
 
 type PlayerProfileFields = {
   playerId?: Field<string>;
@@ -70,13 +71,16 @@ export function PlayerProfile({ rendering }: PlayerProfileProps) {
                 #{player.number}
               </span>
               <span className="rounded bg-secondary px-3 py-1 font-display text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                {player.positionGroup}
+                {player.positionGroup.join(" / ")}
               </span>
             </div>
 
-            <h1 className="mb-2 font-display text-4xl font-bold uppercase tracking-tight text-foreground md:text-5xl">
-              {player.name}
-            </h1>
+            <div className="mb-2 flex flex-wrap items-center gap-3">
+              <h1 className="font-display text-4xl font-bold uppercase tracking-tight text-foreground md:text-5xl">
+                {player.name}
+              </h1>
+              {player.hudlUrl ? <HudlIconButton href={player.hudlUrl} /> : null}
+            </div>
 
             <p className="mb-8 font-display text-lg font-medium uppercase tracking-wider text-muted-foreground">
               {player.position}

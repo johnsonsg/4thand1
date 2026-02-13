@@ -9,6 +9,7 @@ import { NextResponse } from 'next/server'
 import type { CmsLayoutData, ComponentRendering, Field } from '@/lib/types/cms'
 import { getThemeConfig } from '@/lib/theme/themeStore'
 import { resolveTenantFromRequest } from '@/lib/tenancy/resolveTenant'
+import { getPlayers } from '@/lib/services/players'
 import type { ThemeConfig, ThemeTokens } from '@/lib/theme/ThemeTokensEffect'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
@@ -492,22 +493,54 @@ async function seedTenantSettingsIfMissing(tenantId: string): Promise<void> {
       payload.findGlobal({ slug: 'schedule-settings', depth: 0 }).catch(() => null),
     ])
 
-    const brand = (brandRaw as BrandSettings | null) ?? null
-    const hero = (heroRaw as HeroSettings | null) ?? null
-    const theme = (themeRaw as ThemeSettings | null) ?? null
-    const stats = (statsRaw as StatsSettings | null) ?? null
-    const schedule = (scheduleRaw as ScheduleSettings | null) ?? null
+    const brand = normalizeBrandSettings(brandRaw as BrandSettings | null)
+    const hero = normalizeHeroSettings(heroRaw as HeroSettings | null)
+    const theme = normalizeThemeSettings(themeRaw as ThemeSettings | null)
+    const stats = normalizeStatsSettings(statsRaw as StatsSettings | null)
+    const schedule = normalizeScheduleSettings(scheduleRaw as ScheduleSettings | null)
 
     await payload.create({
       collection: 'tenant-settings',
       overrideAccess: true,
       data: {
         tenantId,
-        ...(brand ? { brand } : {}),
-        ...(hero ? { hero } : {}),
+        ...(Object.keys(brand).length
+          ? { brand: { ...brand, brandLogo: (brandRaw as any)?.brandLogo ?? null } }
+          : {}),
+        ...(Object.keys(hero).length
+          ? { hero: { ...hero, backgroundImage: (heroRaw as any)?.backgroundImage ?? null } }
+          : {}),
         ...(theme ? { theme } : {}),
-        ...(stats ? { stats } : {}),
-        ...(schedule ? { schedule } : {}),
+        ...(stats.length
+          ? {
+              stats: {
+                items: stats
+                  .filter((item) => item.label && item.value)
+                  .map((item) => ({ label: String(item.label), value: String(item.value) })),
+              },
+            }
+          : {}),
+        ...(Object.keys(schedule).length
+          ? {
+              schedule: {
+                seasonLabel: schedule.seasonLabel ?? null,
+                title: schedule.title ?? null,
+                record: schedule.record ?? null,
+                winChipBackgroundColor: schedule.winChipBackgroundColor ?? null,
+                winChipTextColor: schedule.winChipTextColor ?? null,
+                games: (schedule.games ?? [])
+                  .filter((game) => game?.dateTime && game?.opponent && game?.location && game?.status)
+                  .map((game) => ({
+                    dateTime: String(game.dateTime),
+                    opponent: String(game.opponent),
+                    location: (game.location === 'Away' ? 'Away' : 'Home') as 'Home' | 'Away',
+                    status: (game.status === 'final' ? 'final' : 'upcoming') as 'final' | 'upcoming',
+                    result: game.result ?? null,
+                    outcome: game.outcome ?? null,
+                  })),
+              },
+            }
+          : {}),
       },
     })
   } catch {
@@ -540,6 +573,8 @@ async function layoutForPath(path: string, tenantId: string): Promise<CmsLayoutD
   const schedule = tenantSettings?.schedule
     ? normalizeScheduleSettings(tenantSettings.schedule)
     : await getScheduleSettings()
+
+  const rosterPlayers = await getPlayers()
 
   // Demo “mock CMS” content
   const title = (() => {
@@ -667,7 +702,13 @@ async function layoutForPath(path: string, tenantId: string): Promise<CmsLayoutD
               : {}),
           },
         },
-        { uid: 'roster-spotlight', componentName: 'RosterSpotlight' },
+        {
+          uid: 'roster-spotlight',
+          componentName: 'RosterSpotlight',
+          fields: {
+            players: f(rosterPlayers),
+          },
+        },
         { uid: 'news-section', componentName: 'NewsSection' },
         { uid: 'contact-section', componentName: 'ContactSection' },
         footer(),  // Line 479: change this
@@ -838,45 +879,50 @@ async function layoutForPath(path: string, tenantId: string): Promise<CmsLayoutD
    - Returns the layout JSON
 ============================================================ */
 export async function GET(request: Request) {
-  const url = new URL(request.url)
-  const path = url.searchParams.get('path')
+  try {
+    const url = new URL(request.url)
+    const path = url.searchParams.get('path')
 
-  if (!path || !path.startsWith('/')) {
-    return NextResponse.json(
-      { error: 'Query string "path" must be a string starting with "/".' },
-      { status: 400 },
-    )
+    if (!path || !path.startsWith('/')) {
+      return NextResponse.json(
+        { error: 'Query string "path" must be a string starting with "/".' },
+        { status: 400 },
+      )
+    }
+
+    const allowed = new Set([
+      '/',
+      '/about',
+      '/tickets',
+      '/fourth-and-1',
+      '/schedule',
+      '/roster',
+      '/results',
+      '/news',
+      '/contact',
+    ])
+
+    if (!allowed.has(path)) {
+      const notFound: CmsLayoutData = { cms: { context: {}, route: null } }
+      return NextResponse.json(notFound)
+    }
+
+    const tenantId = resolveTenantFromRequest(request)
+    const tenantSettings = await getTenantSettings(tenantId)
+    const theme = await getThemeConfig(tenantId)
+    const themeFromPayload = tenantSettings?.theme
+      ? normalizeThemeSettings(tenantSettings.theme)
+      : await getThemeSettings()
+    const mergedTheme: ThemeConfig = {
+      light: { ...theme.light, ...themeFromPayload?.light },
+      dark: { ...theme.dark, ...themeFromPayload?.dark },
+    }
+    const layout = await layoutForPath(path, tenantId)
+    layout.cms.context = { ...layout.cms.context, theme: mergedTheme }
+
+    return NextResponse.json(layout)
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Unknown error'
+    return NextResponse.json({ error: message }, { status: 500 })
   }
-
-  const allowed = new Set([
-    '/',
-    '/about',
-    '/tickets',
-    '/fourth-and-1',
-    '/schedule',
-    '/roster',
-    '/results',
-    '/news',
-    '/contact',
-  ])
-
-  if (!allowed.has(path)) {
-    const notFound: CmsLayoutData = { cms: { context: {}, route: null } }
-    return NextResponse.json(notFound)
-  }
-
-  const tenantId = resolveTenantFromRequest(request)
-  const tenantSettings = await getTenantSettings(tenantId)
-  const theme = await getThemeConfig(tenantId)
-  const themeFromPayload = tenantSettings?.theme
-    ? normalizeThemeSettings(tenantSettings.theme)
-    : await getThemeSettings()
-  const mergedTheme: ThemeConfig = {
-    light: { ...theme.light, ...themeFromPayload?.light },
-    dark: { ...theme.dark, ...themeFromPayload?.dark },
-  }
-  const layout = await layoutForPath(path, tenantId)
-  layout.cms.context = { ...layout.cms.context, theme: mergedTheme }
-
-  return NextResponse.json(layout)
 }

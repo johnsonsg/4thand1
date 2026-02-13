@@ -6,6 +6,7 @@ import NavSpacer from "@/components/rendering/NavSpacer";
 import { ThemeTokensEffect } from "@/lib/theme/ThemeTokensEffect";
 import { buildThemeStyle } from "@/lib/theme/buildThemeStyle";
 import { getSiteLayout } from "@/lib/services/siteLayout";
+import { getPlayers } from "@/lib/services/players";
 
 export const metadata: Metadata = {
   title: "Roster | Westfield Eagles Football",
@@ -16,6 +17,7 @@ export const metadata: Metadata = {
 export default async function RosterPage() {
   const { navbar, footer, theme } = await getSiteLayout("/roster");
   const themeStyle = buildThemeStyle(theme);
+  const players = await getPlayers();
 
   return (
     <>
@@ -34,7 +36,7 @@ export default async function RosterPage() {
                 Full Roster
               </h1>
             </div>
-            <RosterTable />
+            <RosterTable players={players} />
           </div>
         </section>
       </main>
