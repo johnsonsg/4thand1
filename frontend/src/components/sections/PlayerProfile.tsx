@@ -51,7 +51,7 @@ export function PlayerProfile({ rendering }: PlayerProfileProps) {
                 src={player.image || "/placeholder.svg"}
                 alt={`${player.name}, ${player.position} #${player.number}`}
                 fill
-                className="object-cover"
+                className="object-cover object-top"
                 priority
               />
               <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" />

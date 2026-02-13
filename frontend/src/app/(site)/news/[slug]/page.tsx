@@ -9,6 +9,7 @@ import type { Metadata } from "next";
 import { ThemeTokensEffect } from "@/lib/theme/ThemeTokensEffect";
 import { buildThemeStyle } from "@/lib/theme/buildThemeStyle";
 import { getSiteLayout } from "@/lib/services/siteLayout";
+import { getSiteMetadata } from "@/lib/services/metadata";
 
 export async function generateStaticParams() {
   return articles.map((article) => ({ slug: article.slug }));
@@ -22,8 +23,9 @@ export async function generateMetadata({
   const { slug } = await params;
   const article = getArticleBySlug(slug);
   if (!article) return { title: "Article Not Found" };
+  const metadata = await getSiteMetadata("/news");
   return {
-    title: `${article.title} - Westfield Eagles Football`,
+    title: `${article.title} | ${metadata.titleSuffix}`,
     description: article.excerpt,
   };
 }

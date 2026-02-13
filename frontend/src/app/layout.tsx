@@ -1,23 +1,33 @@
+import '@payloadcms/next/css';
+import '@/styles/payload-admin.css';
 import type { ReactNode } from 'react';
-import '@/styles/globals.css';
+import { RootLayout, handleServerFunctions } from '@payloadcms/next/layouts';
+import type { ServerFunctionClientArgs } from 'payload';
+import configPromise from '@payload-config';
+import { importMap } from './(payload)/admin/importMap';
 
-export default function RootLayout({ children }: { children: ReactNode }) {
-  const themeInit = `(() => {
-    try {
-      const stored = window.localStorage.getItem('site.themeMode');
-      const mode = stored ? JSON.parse(stored) : 'dark';
-      const root = document.documentElement;
-      root.classList.toggle('dark', mode === 'dark');
-      root.style.colorScheme = mode;
-    } catch (_) {}
-  })();`;
+export default async function RootAppLayout({ children }: { children: ReactNode }) {
+  const serverFunction = async (args: ServerFunctionClientArgs) => {
+    'use server';
+    return handleServerFunctions({
+      ...args,
+      config: configPromise,
+      importMap,
+    });
+  };
 
   return (
-    <html lang="en" className="dark" suppressHydrationWarning>
-      <head>
-        <script dangerouslySetInnerHTML={{ __html: themeInit }} />
-      </head>
-      <body>{children}</body>
-    </html>
+    <RootLayout
+      config={configPromise}
+      htmlProps={{
+        className: 'dark',
+        style: { colorScheme: 'dark' },
+        suppressHydrationWarning: true,
+      }}
+      importMap={importMap}
+      serverFunction={serverFunction}
+    >
+      {children}
+    </RootLayout>
   );
 }

@@ -17,6 +17,7 @@ type PlayerDoc = {
   number?: string | null;
   position?: string | null;
   positionGroup?: Player['positionGroup'] | string | null;
+  spotlight?: boolean | null;
   year?: string | null;
   height?: string | null;
   weight?: string | null;
@@ -62,6 +63,7 @@ const mapPlayer = (doc: PlayerDoc): Player => ({
   number: doc.number ?? '',
   position: doc.position ?? '',
   positionGroup: normalizePositionGroups(doc.positionGroup),
+  spotlight: Boolean(doc.spotlight),
   year: doc.year ?? '',
   height: doc.height ?? '',
   weight: doc.weight ?? '',

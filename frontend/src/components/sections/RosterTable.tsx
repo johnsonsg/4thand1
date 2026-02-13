@@ -52,8 +52,8 @@ export function RosterTable({ players = fallbackPlayers }: RosterTableProps) {
         sx={{
           bgcolor: "transparent",
           borderRadius: 2,
-          border: "1px solid",
-          borderColor: "divider",
+          // border: "1px solid",
+          // borderColor: "divider",
         }}
       >
         <Table>

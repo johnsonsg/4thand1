@@ -8,6 +8,7 @@ export interface Player {
   number: string;
   position: string;
   positionGroup: PositionGroup[];
+  spotlight?: boolean;
   year: string;
   height: string;
   weight: string;

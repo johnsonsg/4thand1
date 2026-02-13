@@ -108,6 +108,37 @@ const TenantSettings: CollectionConfig = {
       ],
     },
     {
+      name: 'metadata',
+      type: 'group',
+      label: 'Metadata (SEO)',
+      fields: [
+        {
+          name: 'teamName',
+          label: 'Team Name',
+          type: 'text',
+          admin: {
+            description: 'School or program name (e.g., Westfield).',
+          },
+        },
+        {
+          name: 'mascot',
+          label: 'Mascot',
+          type: 'text',
+          admin: {
+            description: 'Mascot or nickname (e.g., Eagles).',
+          },
+        },
+        {
+          name: 'sport',
+          label: 'Sport',
+          type: 'text',
+          admin: {
+            description: 'Sport name for SEO (e.g., Football).',
+          },
+        },
+      ],
+    },
+    {
       name: 'hero',
       type: 'group',
       label: 'Hero Settings',

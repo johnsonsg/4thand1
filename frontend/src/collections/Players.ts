@@ -12,6 +12,7 @@ const Players: CollectionConfig = {
   slug: 'players',
   admin: {
     useAsTitle: 'name',
+    defaultColumns: ['name', 'number', 'position', 'spotlight', 'updatedAt'],
   },
   hooks: {
     beforeValidate: [
@@ -55,6 +56,18 @@ const Players: CollectionConfig = {
       type: 'select',
       hasMany: true,
       options: ['Offense', 'Defense', 'Special Teams'],
+    },
+    {
+      name: 'spotlight',
+      label: 'Show in Player Spotlight',
+      type: 'checkbox',
+      defaultValue: false,
+      admin: {
+        description: 'Include this player in the home page spotlight section.',
+        components: {
+          Cell: '/src/components/admin/SpotlightCell#default',
+        },
+      },
     },
     {
       name: 'year',

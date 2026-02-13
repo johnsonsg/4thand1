@@ -94,7 +94,7 @@ export function RosterList({ rendering }: RosterListProps) {
                   HT / WT
                 </TableCell>
                 <TableCell sx={{ display: { xs: "none", sm: "table-cell" } }}>
-                  Stats
+                  Statssfasdfads
                 </TableCell>
               </TableRow>
             </TableHead>

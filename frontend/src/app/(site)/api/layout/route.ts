@@ -73,9 +73,16 @@ type ThemeSettings = {
   dark?: ThemeTokens | null
 }
 
+type MetadataSettings = {
+  teamName?: string | null
+  mascot?: string | null
+  sport?: string | null
+}
+
 type TenantSettings = {
   tenantId: string
   brand?: BrandSettings | null
+  metadata?: MetadataSettings | null
   hero?: HeroSettings | null
   theme?: ThemeSettings | null
   stats?: StatsSettings | null
@@ -156,6 +163,12 @@ const DEFAULT_BRAND: Required<Pick<BrandSettings, 'brandName' | 'brandSubtitle' 
   brandName: 'Westfield Eagles',
   brandSubtitle: 'Football',
   brandMark: 'W',
+}
+
+const DEFAULT_METADATA: Required<MetadataSettings> = {
+  teamName: 'Westfield',
+  mascot: 'Eagles',
+  sport: 'Football',
 }
 
 /* ============================================================
@@ -244,6 +257,16 @@ function resolveBrandLogo(logo?: BrandSettings['brandLogo']): BrandLogo | null {
     alt: logo.alt ?? 'Brand logo',
     width: logo.width ?? undefined,
     height: logo.height ?? undefined,
+  }
+}
+
+function normalizeMetadataSettings(raw?: MetadataSettings | null): MetadataSettings {
+  if (!raw) return {}
+
+  return {
+    teamName: raw?.teamName ?? null,
+    mascot: raw?.mascot ?? null,
+    sport: raw?.sport ?? null,
   }
 }
 
@@ -510,6 +533,11 @@ async function seedTenantSettingsIfMissing(tenantId: string): Promise<void> {
         ...(Object.keys(hero).length
           ? { hero: { ...hero, backgroundImage: (heroRaw as any)?.backgroundImage ?? null } }
           : {}),
+        metadata: {
+          teamName: DEFAULT_METADATA.teamName,
+          mascot: DEFAULT_METADATA.mascot,
+          sport: DEFAULT_METADATA.sport,
+        },
         ...(theme ? { theme } : {}),
         ...(stats.length
           ? {
@@ -910,6 +938,14 @@ export async function GET(request: Request) {
     const tenantId = resolveTenantFromRequest(request)
     const tenantSettings = await getTenantSettings(tenantId)
     const theme = await getThemeConfig(tenantId)
+    const metadataFromTenant = tenantSettings?.metadata
+      ? normalizeMetadataSettings(tenantSettings.metadata)
+      : {}
+    const metadata: MetadataSettings = {
+      teamName: metadataFromTenant.teamName ?? DEFAULT_METADATA.teamName,
+      mascot: metadataFromTenant.mascot ?? DEFAULT_METADATA.mascot,
+      sport: metadataFromTenant.sport ?? DEFAULT_METADATA.sport,
+    }
     const themeFromPayload = tenantSettings?.theme
       ? normalizeThemeSettings(tenantSettings.theme)
       : await getThemeSettings()
@@ -918,7 +954,7 @@ export async function GET(request: Request) {
       dark: { ...theme.dark, ...themeFromPayload?.dark },
     }
     const layout = await layoutForPath(path, tenantId)
-    layout.cms.context = { ...layout.cms.context, theme: mergedTheme }
+    layout.cms.context = { ...layout.cms.context, theme: mergedTheme, metadata }
 
     return NextResponse.json(layout)
   } catch (error) {

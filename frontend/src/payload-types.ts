@@ -196,6 +196,20 @@ export interface TenantSetting {
     brandMoto?: string | null;
     brandLogo?: (string | null) | Media;
   };
+  metadata?: {
+    /**
+     * School or program name (e.g., Westfield).
+     */
+    teamName?: string | null;
+    /**
+     * Mascot or nickname (e.g., Eagles).
+     */
+    mascot?: string | null;
+    /**
+     * Sport name for SEO (e.g., Football).
+     */
+    sport?: string | null;
+  };
   hero?: {
     season?: string | null;
     headline?: string | null;
@@ -290,6 +304,10 @@ export interface Player {
   number?: string | null;
   position?: string | null;
   positionGroup?: ('Offense' | 'Defense' | 'Special Teams')[] | null;
+  /**
+   * Include this player in the home page spotlight section.
+   */
+  spotlight?: boolean | null;
   /**
    * Graduation year (e.g., 2026).
    */
@@ -453,6 +471,13 @@ export interface TenantSettingsSelect<T extends boolean = true> {
         brandMoto?: T;
         brandLogo?: T;
       };
+  metadata?:
+    | T
+    | {
+        teamName?: T;
+        mascot?: T;
+        sport?: T;
+      };
   hero?:
     | T
     | {
@@ -531,6 +556,7 @@ export interface PlayersSelect<T extends boolean = true> {
   number?: T;
   position?: T;
   positionGroup?: T;
+  spotlight?: T;
   year?: T;
   height?: T;
   weight?: T;

@@ -16,7 +16,8 @@ type RosterSpotlightFields = {
 export function RosterSpotlight({ rendering }: RosterSpotlightProps) {
   const fields = (rendering.fields ?? {}) as unknown as RosterSpotlightFields;
   const list = fields.players?.value ?? fallbackPlayers;
-  const spotlightPlayers = list.slice(0, 3);
+  const spotlightSelections = list.filter((player) => player.spotlight);
+  const spotlightPlayers = (spotlightSelections.length ? spotlightSelections : list).slice(0, 4);
 
   return (
     <section id="roster" className="bg-secondary/50 py-14">
@@ -38,7 +39,7 @@ export function RosterSpotlight({ rendering }: RosterSpotlightProps) {
           </Link>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-4">
           {spotlightPlayers.map((player) => (
             <Link
               key={player.id}
@@ -50,7 +51,7 @@ export function RosterSpotlight({ rendering }: RosterSpotlightProps) {
                   src={player.image}
                   alt={`${player.name}, ${player.position} #${player.number}`}
                   fill
-                  className="object-cover transition-transform duration-500 group-hover:scale-105"
+                  className="object-cover object-top transition-transform duration-500 group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-linear-to-t from-background via-background/40 to-transparent" />
               </div>

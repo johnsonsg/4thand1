@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getPlayerBySlug, getPlayerSlugs } from "@/lib/services/players";
+import { getSiteMetadata } from "@/lib/services/metadata";
 import { ArrowLeft } from "lucide-react";
 import { Navbar } from "@/components/header/Navbar";
 import { Footer } from "@/components/footer/Footer";
@@ -25,9 +26,10 @@ export async function generateMetadata({
   const { id } = await params;
   const player = await getPlayerBySlug(id);
   if (!player) return { title: "Player Not Found" };
+  const metadata = await getSiteMetadata("/roster");
   return {
-    title: `${player.name} #${player.number} | Westfield Eagles Football`,
-    description: `${player.name} - ${player.position} for the Westfield Eagles. ${player.stats}`,
+    title: `${player.name} #${player.number} | ${metadata.titleSuffix}`,
+    description: `${player.name} - ${player.position} for the ${metadata.teamLabel}. ${player.stats}`,
   };
 }
 
