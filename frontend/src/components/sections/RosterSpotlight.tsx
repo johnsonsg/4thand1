@@ -13,7 +13,7 @@ export function RosterSpotlight({ rendering }: RosterSpotlightProps) {
   const spotlightPlayers = players.slice(0, 3);
 
   return (
-    <section id="roster" className="bg-secondary/50 py-24">
+    <section id="roster" className="bg-secondary/50 py-14">
       <div className="mx-auto max-w-7xl px-6">
         <div className="mb-12 flex items-end justify-between">
           <div>

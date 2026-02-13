@@ -18,7 +18,7 @@ export function RosterPage({ rendering }: RosterPageProps) {
   const title = fields.title?.value ?? "Full Roster";
 
   return (
-    <section className="pt-28 pb-24">
+    <section className="py-14">
       <div className="mx-auto max-w-7xl px-6">
         <div className="mb-12">
           <p className="mb-2 font-display text-sm font-medium uppercase tracking-[0.3em] text-primary">

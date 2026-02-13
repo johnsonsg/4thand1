@@ -11,6 +11,7 @@ import BrandSettings from './src/globals/BrandSettings'
 import ThemeSettings from './src/globals/ThemeSettings'
 import StatsSettings from './src/globals/StatsSettings'
 import ScheduleSettings from './src/globals/ScheduleSettings'
+import TenantSettings from './src/collections/TenantSettings'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -33,7 +34,7 @@ export default buildConfig({
       baseDir: __dirname
     }
   },
-  collections: [Users, Media],
+  collections: [Users, Media, TenantSettings],
   globals: [HeroSettings, BrandSettings, ThemeSettings, StatsSettings, ScheduleSettings],
   typescript: {
     outputFile: path.resolve(process.cwd(), 'src', 'payload-types.ts'),

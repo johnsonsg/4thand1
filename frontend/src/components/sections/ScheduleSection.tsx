@@ -109,7 +109,7 @@ export function ScheduleSection({ rendering }: ScheduleProps) {
   });
 
   return (
-    <section id="schedule" className="py-24">
+    <section id="schedule" className="py-14">
       <div className="mx-auto max-w-7xl px-6">
         <div className="mb-12 flex flex-col items-center justify-between md:flex-row md:items-end">
           <div className="text-center md:text-left">

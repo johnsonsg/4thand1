@@ -48,7 +48,7 @@ export default async function PlayerProfilePage({
       <Navbar rendering={navbar} />
       <NavSpacer />
       <main>
-        <section className="pt-28 pb-24">
+        <section className="py-14">
           <div className="mx-auto max-w-7xl px-6">
             <Link
               href="/roster"

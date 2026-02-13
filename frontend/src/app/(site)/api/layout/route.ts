@@ -8,6 +8,7 @@
 import { NextResponse } from 'next/server'
 import type { CmsLayoutData, ComponentRendering, Field } from '@/lib/types/cms'
 import { getThemeConfig } from '@/lib/theme/themeStore'
+import { resolveTenantFromRequest } from '@/lib/tenancy/resolveTenant'
 import type { ThemeConfig, ThemeTokens } from '@/lib/theme/ThemeTokensEffect'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
@@ -69,6 +70,15 @@ type BrandSettings = {
 type ThemeSettings = {
   light?: ThemeTokens | null
   dark?: ThemeTokens | null
+}
+
+type TenantSettings = {
+  tenantId: string
+  brand?: BrandSettings | null
+  hero?: HeroSettings | null
+  theme?: ThemeSettings | null
+  stats?: StatsSettings | null
+  schedule?: ScheduleSettings | null
 }
 
 type StatsItem = {
@@ -279,6 +289,38 @@ async function getHeroSettings(): Promise<HeroSettings> {
   }
 }
 
+function normalizeHeroSettings(raw?: HeroSettings | null): HeroSettings {
+  if (!raw) return {}
+
+  const bg =
+    raw?.backgroundImage && typeof raw.backgroundImage === 'object'
+      ? {
+          url: raw.backgroundImage.url ?? null,
+          alt: raw.backgroundImage.alt ?? null,
+          filename: raw.backgroundImage.filename ?? null,
+        }
+      : null
+
+  return {
+    season: raw?.season ?? null,
+    headline: raw?.headline ?? null,
+    heroDescription: raw?.heroDescription ?? null,
+    backgroundImage: bg,
+
+    primaryCtaLabel: raw?.primaryCtaLabel ?? null,
+    primaryCtaHref: raw?.primaryCtaHref ?? null,
+    primaryCtaBackgroundColor: raw?.primaryCtaBackgroundColor ?? null,
+    primaryCtaTextColor: raw?.primaryCtaTextColor ?? null,
+
+    secondaryCtaLabel: raw?.secondaryCtaLabel ?? null,
+    secondaryCtaHref: raw?.secondaryCtaHref ?? null,
+    tertiaryCtaLabel: raw?.tertiaryCtaLabel ?? null,
+    tertiaryCtaHref: raw?.tertiaryCtaHref ?? null,
+    quaternaryCtaLabel: raw?.quaternaryCtaLabel ?? null,
+    quaternaryCtaHref: raw?.quaternaryCtaHref ?? null,
+  }
+}
+
 async function getBrandSettings(): Promise<BrandSettings> {
   try {
     const payload = await getPayload({ config: configPromise })
@@ -307,6 +349,29 @@ async function getBrandSettings(): Promise<BrandSettings> {
   }
 }
 
+function normalizeBrandSettings(raw?: BrandSettings | null): BrandSettings {
+  if (!raw) return {}
+
+  const brandLogo =
+    raw?.brandLogo && typeof raw.brandLogo === 'object'
+      ? {
+          url: raw.brandLogo.url ?? null,
+          alt: raw.brandLogo.alt ?? null,
+          filename: raw.brandLogo.filename ?? null,
+          width: raw.brandLogo.width ?? null,
+          height: raw.brandLogo.height ?? null,
+        }
+      : null
+
+  return {
+    brandName: raw?.brandName ?? null,
+    brandSubtitle: raw?.brandSubtitle ?? null,
+    brandMark: raw?.brandMark ?? null,
+    brandMoto: raw?.brandMoto ?? null,
+    brandLogo,
+  }
+}
+
 async function getThemeSettings(): Promise<ThemeConfig | null> {
   try {
     const payload = await getPayload({ config: configPromise })
@@ -318,6 +383,14 @@ async function getThemeSettings(): Promise<ThemeConfig | null> {
     }
   } catch {
     return null
+  }
+}
+
+function normalizeThemeSettings(raw?: ThemeSettings | null): ThemeConfig | null {
+  if (!raw) return null
+  return {
+    light: raw?.light ?? undefined,
+    dark: raw?.dark ?? undefined,
   }
 }
 
@@ -339,6 +412,18 @@ async function getStatsSettings(): Promise<StatsItem[]> {
   }
 }
 
+function normalizeStatsSettings(raw?: StatsSettings | null): StatsItem[] {
+  const defaults: StatsItem[] = [
+    { label: 'Seasons', value: '73' },
+    { label: 'District Titles', value: '12' },
+    { label: 'State Appearances', value: '5' },
+    { label: 'All-State Players', value: '48' },
+  ]
+
+  const items = raw?.items?.filter((item) => item?.label && item?.value) ?? []
+  return items.length ? items.slice(0, 6) : defaults
+}
+
 async function getScheduleSettings(): Promise<ScheduleSettings> {
   try {
     const payload = await getPayload({ config: configPromise })
@@ -357,19 +442,104 @@ async function getScheduleSettings(): Promise<ScheduleSettings> {
   }
 }
 
+function normalizeScheduleSettings(raw?: ScheduleSettings | null): ScheduleSettings {
+  if (!raw) return {}
+
+  return {
+    seasonLabel: raw?.seasonLabel ?? null,
+    title: raw?.title ?? null,
+    record: raw?.record ?? null,
+    winChipBackgroundColor: raw?.winChipBackgroundColor ?? null,
+    winChipTextColor: raw?.winChipTextColor ?? null,
+    games: raw?.games ?? null,
+  }
+}
+
+async function getTenantSettings(tenantId: string): Promise<TenantSettings | null> {
+  try {
+    const payload = await getPayload({ config: configPromise })
+    const result = await payload.find({
+      collection: 'tenant-settings',
+      where: { tenantId: { equals: tenantId } },
+      depth: 1,
+      overrideAccess: true,
+      limit: 1,
+    })
+    return (result?.docs?.[0] as TenantSettings) ?? null
+  } catch {
+    return null
+  }
+}
+
+async function seedTenantSettingsIfMissing(tenantId: string): Promise<void> {
+  try {
+    const payload = await getPayload({ config: configPromise })
+    const existing = await payload.find({
+      collection: 'tenant-settings',
+      where: { tenantId: { equals: tenantId } },
+      depth: 0,
+      overrideAccess: true,
+      limit: 1,
+    })
+
+    if (existing?.docs?.length) return
+
+    const [brandRaw, heroRaw, themeRaw, statsRaw, scheduleRaw] = await Promise.all([
+      payload.findGlobal({ slug: 'brand-settings', depth: 0 }).catch(() => null),
+      payload.findGlobal({ slug: 'hero-settings', depth: 0 }).catch(() => null),
+      payload.findGlobal({ slug: 'theme-settings', depth: 0 }).catch(() => null),
+      payload.findGlobal({ slug: 'stats-settings', depth: 0 }).catch(() => null),
+      payload.findGlobal({ slug: 'schedule-settings', depth: 0 }).catch(() => null),
+    ])
+
+    const brand = (brandRaw as BrandSettings | null) ?? null
+    const hero = (heroRaw as HeroSettings | null) ?? null
+    const theme = (themeRaw as ThemeSettings | null) ?? null
+    const stats = (statsRaw as StatsSettings | null) ?? null
+    const schedule = (scheduleRaw as ScheduleSettings | null) ?? null
+
+    await payload.create({
+      collection: 'tenant-settings',
+      overrideAccess: true,
+      data: {
+        tenantId,
+        ...(brand ? { brand } : {}),
+        ...(hero ? { hero } : {}),
+        ...(theme ? { theme } : {}),
+        ...(stats ? { stats } : {}),
+        ...(schedule ? { schedule } : {}),
+      },
+    })
+  } catch {
+    // If Payload isn't reachable yet, skip seeding
+  }
+}
+
 /* ============================================================
    Layout builder
    - Returns CMS layout JSON for a given path
    - For "/", injects HeroSection fields using Payload global values
 ============================================================ */
-async function layoutForPath(path: string): Promise<CmsLayoutData> {
+async function layoutForPath(path: string, tenantId: string): Promise<CmsLayoutData> {
   const routeName = path === '/' ? 'home' : path.replace(/^\//, '').replace(/\//g, '-')
   const f = <T>(value: T): Field<T> => ({ value })
 
-  const brand = await getBrandSettings()
+  await seedTenantSettingsIfMissing(tenantId)
+  const tenantSettings = await getTenantSettings(tenantId)
+  const baseBrand = await getBrandSettings()
+  const tenantBrand = tenantSettings?.brand ? normalizeBrandSettings(tenantSettings.brand) : {}
+  const brand: BrandSettings = {
+    ...baseBrand,
+    ...tenantBrand,
+    brandLogo: tenantBrand.brandLogo ?? baseBrand.brandLogo,
+  }
   const brandLogo = resolveBrandLogo(brand.brandLogo)
-  const statsItems = await getStatsSettings()
-  const schedule = await getScheduleSettings()
+  const statsItems = tenantSettings?.stats
+    ? normalizeStatsSettings(tenantSettings.stats)
+    : await getStatsSettings()
+  const schedule = tenantSettings?.schedule
+    ? normalizeScheduleSettings(tenantSettings.schedule)
+    : await getScheduleSettings()
 
   // Demo “mock CMS” content
   const title = (() => {
@@ -432,7 +602,9 @@ async function layoutForPath(path: string): Promise<CmsLayoutData> {
   })
 
   // Pull hero values from Payload
-  const hero = await getHeroSettings()
+  const baseHero = await getHeroSettings()
+  const tenantHero = tenantSettings?.hero ? normalizeHeroSettings(tenantSettings.hero) : {}
+  const hero: HeroSettings = { ...baseHero, ...tenantHero }
   const heroBackground = resolveHeroBackground(hero.backgroundImage)
 
   const main: ComponentRendering[] = (() => {
@@ -693,13 +865,17 @@ export async function GET(request: Request) {
     return NextResponse.json(notFound)
   }
 
-  const theme = await getThemeConfig()
-  const themeFromPayload = await getThemeSettings()
+  const tenantId = resolveTenantFromRequest(request)
+  const tenantSettings = await getTenantSettings(tenantId)
+  const theme = await getThemeConfig(tenantId)
+  const themeFromPayload = tenantSettings?.theme
+    ? normalizeThemeSettings(tenantSettings.theme)
+    : await getThemeSettings()
   const mergedTheme: ThemeConfig = {
     light: { ...theme.light, ...themeFromPayload?.light },
     dark: { ...theme.dark, ...themeFromPayload?.dark },
   }
-  const layout = await layoutForPath(path)
+  const layout = await layoutForPath(path, tenantId)
   layout.cms.context = { ...layout.cms.context, theme: mergedTheme }
 
   return NextResponse.json(layout)

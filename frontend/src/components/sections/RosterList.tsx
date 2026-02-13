@@ -28,7 +28,7 @@ export function RosterList({ rendering }: RosterListProps) {
       : players.filter((p) => p.positionGroup === activeGroup);
 
   return (
-    <section className="pt-28 pb-24">
+    <section className="py-14">
       <div className="mx-auto max-w-7xl px-6">
         <div className="mb-12">
           <p className="mb-2 font-display text-sm font-medium uppercase tracking-[0.3em] text-primary">

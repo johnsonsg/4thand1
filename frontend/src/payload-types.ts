@@ -69,6 +69,7 @@ export interface Config {
   collections: {
     users: User;
     media: Media;
+    'tenant-settings': TenantSetting;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -78,6 +79,7 @@ export interface Config {
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
+    'tenant-settings': TenantSettingsSelect<false> | TenantSettingsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -171,6 +173,108 @@ export interface Media {
   focalY?: number | null;
 }
 /**
+ * Per-tenant settings for brand, hero, theme, stats, and schedule.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tenant-settings".
+ */
+export interface TenantSetting {
+  id: string;
+  tenantId: string;
+  brand?: {
+    brandName?: string | null;
+    brandSubtitle?: string | null;
+    /**
+     * Single letter or short mark (e.g., "W" for Westfield)
+     */
+    brandMark?: string | null;
+    /**
+     * Team motto or tagline displayed in the footer
+     */
+    brandMoto?: string | null;
+    brandLogo?: (string | null) | Media;
+  };
+  hero?: {
+    season?: string | null;
+    headline?: string | null;
+    heroDescription?: string | null;
+    backgroundImage?: (string | null) | Media;
+    primaryCtaLabel?: string | null;
+    primaryCtaHref?: string | null;
+    /**
+     * Button background color. Accepts hex (#EBBA3C) or HSL (43 90% 55%).
+     */
+    primaryCtaBackgroundColor?: string | null;
+    /**
+     * Button text color. Accepts hex (#000000) or HSL (0 0% 0%).
+     */
+    primaryCtaTextColor?: string | null;
+    secondaryCtaLabel?: string | null;
+    secondaryCtaHref?: string | null;
+    tertiaryCtaLabel?: string | null;
+    tertiaryCtaHref?: string | null;
+    quaternaryCtaLabel?: string | null;
+    quaternaryCtaHref?: string | null;
+  };
+  theme?: {
+    light?: {
+      /**
+       * Main brand color. Accepts hex (#EBBA3C) or HSL (43 90% 55%).
+       */
+      primary?: string | null;
+      /**
+       * Accent color. Accepts hex (#030712) or HSL (43 90% 55%).
+       */
+      secondary?: string | null;
+    };
+    dark?: {
+      /**
+       * Main brand color. Accepts hex (#EBBA3C) or HSL (43 90% 55%).
+       */
+      primary?: string | null;
+      /**
+       * Accent color. Accepts hex (#030712) or HSL (43 90% 55%).
+       */
+      secondary?: string | null;
+    };
+  };
+  stats?: {
+    items?:
+      | {
+          value: string;
+          label: string;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  schedule?: {
+    seasonLabel?: string | null;
+    title?: string | null;
+    record?: string | null;
+    /**
+     * Background color for Win (W) outcome chips. Accepts hex or HSL.
+     */
+    winChipBackgroundColor?: string | null;
+    /**
+     * Text color for Win (W) outcome chips. Accepts hex or HSL.
+     */
+    winChipTextColor?: string | null;
+    games?:
+      | {
+          dateTime: string;
+          opponent: string;
+          location: 'Home' | 'Away';
+          status: 'final' | 'upcoming';
+          result?: string | null;
+          outcome?: ('W' | 'L' | 'T' | 'BYE') | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
@@ -201,6 +305,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'media';
         value: string | Media;
+      } | null)
+    | ({
+        relationTo: 'tenant-settings';
+        value: string | TenantSetting;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -283,6 +391,89 @@ export interface MediaSelect<T extends boolean = true> {
   height?: T;
   focalX?: T;
   focalY?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tenant-settings_select".
+ */
+export interface TenantSettingsSelect<T extends boolean = true> {
+  tenantId?: T;
+  brand?:
+    | T
+    | {
+        brandName?: T;
+        brandSubtitle?: T;
+        brandMark?: T;
+        brandMoto?: T;
+        brandLogo?: T;
+      };
+  hero?:
+    | T
+    | {
+        season?: T;
+        headline?: T;
+        heroDescription?: T;
+        backgroundImage?: T;
+        primaryCtaLabel?: T;
+        primaryCtaHref?: T;
+        primaryCtaBackgroundColor?: T;
+        primaryCtaTextColor?: T;
+        secondaryCtaLabel?: T;
+        secondaryCtaHref?: T;
+        tertiaryCtaLabel?: T;
+        tertiaryCtaHref?: T;
+        quaternaryCtaLabel?: T;
+        quaternaryCtaHref?: T;
+      };
+  theme?:
+    | T
+    | {
+        light?:
+          | T
+          | {
+              primary?: T;
+              secondary?: T;
+            };
+        dark?:
+          | T
+          | {
+              primary?: T;
+              secondary?: T;
+            };
+      };
+  stats?:
+    | T
+    | {
+        items?:
+          | T
+          | {
+              value?: T;
+              label?: T;
+              id?: T;
+            };
+      };
+  schedule?:
+    | T
+    | {
+        seasonLabel?: T;
+        title?: T;
+        record?: T;
+        winChipBackgroundColor?: T;
+        winChipTextColor?: T;
+        games?:
+          | T
+          | {
+              dateTime?: T;
+              opponent?: T;
+              location?: T;
+              status?: T;
+              result?: T;
+              outcome?: T;
+              id?: T;
+            };
+      };
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
