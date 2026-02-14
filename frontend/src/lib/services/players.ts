@@ -1,8 +1,9 @@
 import configPromise from '@payload-config';
 import { getPayload } from 'payload';
+import { headers } from 'next/headers';
 
 import type { Player, PositionGroup } from '@/lib/players';
-import { players as fallbackPlayers } from '@/lib/players';
+import { resolveTenantFromHeaders } from '@/lib/tenancy/resolveTenant';
 
 type MediaLike = {
   url?: string | null;
@@ -10,8 +11,8 @@ type MediaLike = {
   filename?: string | null;
 };
 
-type PlayerDoc = {
-  id: string;
+type PlayerEntry = {
+  id?: string | null;
   slug?: string | null;
   name?: string | null;
   number?: string | null;
@@ -28,6 +29,25 @@ type PlayerDoc = {
   accolades?: Array<{ title?: string | null }> | null;
   sortOrder?: number | null;
 };
+
+type TenantSettingsDoc = {
+  id: string;
+  tenantId?: string | null;
+  players?: PlayerEntry[] | null;
+};
+
+const resolveTenantId = async (): Promise<string> => {
+  const reqHeaders = await headers();
+  return resolveTenantFromHeaders(reqHeaders);
+};
+
+const slugify = (value: string) =>
+  value
+    .toLowerCase()
+    .trim()
+    .replace(/['’]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
 
 const resolvePlayerImage = (value?: MediaLike | string | null): string => {
   if (!value) return '';
@@ -57,73 +77,75 @@ const normalizePositionGroups = (value?: PlayerDoc['positionGroup']): PositionGr
   return ['Offense'];
 };
 
-const mapPlayer = (doc: PlayerDoc): Player => ({
-  id: doc.slug ?? doc.id,
-  name: doc.name ?? 'Unknown Player',
-  number: doc.number ?? '',
-  position: doc.position ?? '',
-  positionGroup: normalizePositionGroups(doc.positionGroup),
-  spotlight: Boolean(doc.spotlight),
-  year: doc.year ?? '',
-  height: doc.height ?? '',
-  weight: doc.weight ?? '',
-  image: resolvePlayerImage(doc.image),
-  stats: doc.stats ?? '',
-  hudlUrl: doc.hudlUrl ?? undefined,
-  bio: doc.bio ?? '',
-  accolades: (doc.accolades ?? []).map((item) => item.title ?? '').filter(Boolean),
-});
+const mapPlayer = (entry: PlayerEntry): Player => {
+  const name = entry.name ?? 'Unknown Player';
+  const number = entry.number ?? '';
+  const slugBase = [name, number].filter(Boolean).join('-');
+  const fallbackSlug = slugBase ? slugify(slugBase) : undefined;
+  const id = entry.slug ?? entry.id ?? fallbackSlug ?? '';
+
+  return {
+    id,
+    name,
+    number,
+    position: entry.position ?? '',
+    positionGroup: normalizePositionGroups(entry.positionGroup),
+    spotlight: Boolean(entry.spotlight),
+    year: entry.year ?? '',
+    height: entry.height ?? '',
+    weight: entry.weight ?? '',
+    image: resolvePlayerImage(entry.image),
+    stats: entry.stats ?? '',
+    hudlUrl: entry.hudlUrl ?? undefined,
+    bio: entry.bio ?? '',
+    accolades: (entry.accolades ?? []).map((item) => item.title ?? '').filter(Boolean),
+  };
+};
+
+const getTenantPlayers = async (): Promise<PlayerEntry[]> => {
+  const payload = await getPayload({ config: configPromise });
+  const tenantId = await resolveTenantId();
+  const result = await payload.find({
+    collection: 'tenant-settings',
+    depth: 2,
+    limit: 1,
+    where: { tenantId: { equals: tenantId } },
+  });
+  const doc = (result?.docs?.[0] as TenantSettingsDoc | undefined) ?? undefined;
+  return (doc?.players ?? []) as PlayerEntry[];
+};
 
 export async function getPlayers(): Promise<Player[]> {
   try {
-    const payload = await getPayload({ config: configPromise });
-    const result = await payload.find({
-      collection: 'players',
-      depth: 1,
-      limit: 200,
-      sort: 'sortOrder',
-    });
+    const entries = await getTenantPlayers();
+    if (!entries.length) return [];
 
-    const docs = (result?.docs as PlayerDoc[]) ?? [];
-    if (!docs.length) return fallbackPlayers;
-
-    return docs.map(mapPlayer);
+    return entries
+      .slice()
+      .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0))
+      .map(mapPlayer);
   } catch {
-    return fallbackPlayers;
+    return [];
   }
 }
 
 export async function getPlayerBySlug(slug: string): Promise<Player | undefined> {
   try {
-    const payload = await getPayload({ config: configPromise });
-    const result = await payload.find({
-      collection: 'players',
-      depth: 1,
-      limit: 1,
-      where: { slug: { equals: slug } },
-    });
-    const doc = (result?.docs?.[0] as PlayerDoc | undefined) ?? undefined;
-    return doc ? mapPlayer(doc) : fallbackPlayers.find((player) => player.id === slug);
+    const entries = await getTenantPlayers();
+    const match = entries.find((entry) => entry.slug === slug || entry.id === slug);
+    return match ? mapPlayer(match) : undefined;
   } catch {
-    return fallbackPlayers.find((player) => player.id === slug);
+    return undefined;
   }
 }
 
 export async function getPlayerSlugs(): Promise<string[]> {
   try {
-    const payload = await getPayload({ config: configPromise });
-    const result = await payload.find({
-      collection: 'players',
-      depth: 0,
-      limit: 200,
-    });
-    const docs = (result?.docs as PlayerDoc[]) ?? [];
-    if (!docs.length) return fallbackPlayers.map((player) => player.id);
-
-    return docs
-      .map((doc) => doc.slug ?? doc.id)
+    const entries = await getTenantPlayers();
+    return entries
+      .map((entry) => entry.slug ?? entry.id ?? '')
       .filter((slug): slug is string => Boolean(slug));
   } catch {
-    return fallbackPlayers.map((player) => player.id);
+    return [];
   }
 }

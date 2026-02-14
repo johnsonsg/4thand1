@@ -7,12 +7,15 @@ import { ThemeTokensEffect } from "@/lib/theme/ThemeTokensEffect";
 import { buildThemeStyle } from "@/lib/theme/buildThemeStyle";
 import { getSiteLayout } from "@/lib/services/siteLayout";
 import { getPlayers } from "@/lib/services/players";
+import { getSiteMetadata } from "@/lib/services/metadata";
 
-export const metadata: Metadata = {
-  title: "Roster | Westfield Eagles Football",
-  description:
-    "View the full Westfield Eagles football roster. Players, positions, stats, and more.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const metadata = await getSiteMetadata("/roster");
+  return {
+    title: `Roster | ${metadata.titleSuffix}`,
+    description: metadata.description,
+  };
+}
 
 export default async function RosterPage() {
   const { navbar, footer, theme } = await getSiteLayout("/roster");

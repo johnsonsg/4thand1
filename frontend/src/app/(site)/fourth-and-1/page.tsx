@@ -8,11 +8,15 @@ import type { ComponentRendering } from "@/lib/types/cms";
 import { ThemeTokensEffect } from "@/lib/theme/ThemeTokensEffect";
 import { buildThemeStyle } from "@/lib/theme/buildThemeStyle";
 import { getSiteLayout } from "@/lib/services/siteLayout";
+import { getSiteMetadata } from "@/lib/services/metadata";
 
-export const metadata: Metadata = {
-  title: "4th&1 | Westfield Eagles Football",
-  description: "Fourth and 1 content for the Westfield Eagles football program.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const metadata = await getSiteMetadata("/fourth-and-1");
+  return {
+    title: `4th&1 | ${metadata.titleSuffix}`,
+    description: metadata.description,
+  };
+}
 
 export default async function FourthAndOnePage() {
   const { navbar, footer, theme, main } = await getSiteLayout("/fourth-and-1");

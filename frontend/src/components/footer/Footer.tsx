@@ -1,5 +1,6 @@
 import type { ComponentRendering, Field } from '@/lib/types/cms';
 import { BrandIdentity, type BrandImageValue } from '@/components/brand/BrandIdentity';
+import { ContactInfo } from '@/components/contact/ContactInfo';
 
 type FooterFields = {
   brandName?: Field<string>;
@@ -8,6 +9,13 @@ type FooterFields = {
   brandMoto?: Field<string>;
   brandLogo?: Field<BrandImageValue>;
   brandMarkImage?: Field<BrandImageValue>;
+  addressLine1?: Field<string>;
+  addressLine2?: Field<string>;
+  city?: Field<string>;
+  state?: Field<string>;
+  zip?: Field<string>;
+  email?: Field<string>;
+  phone?: Field<string>;
 };
 
 type BrandFields = Pick<
@@ -60,6 +68,19 @@ export function Footer({ rendering }: FooterProps) {
     brandMoto,
   } = resolveBrandFields(fields);
 
+  const contact = {
+    addressLine1: fields.addressLine1?.value ?? '',
+    addressLine2: fields.addressLine2?.value ?? '',
+    city: fields.city?.value ?? '',
+    state: fields.state?.value ?? '',
+    zip: fields.zip?.value ?? '',
+    email: fields.email?.value ?? '',
+    phone: fields.phone?.value ?? '',
+  };
+
+  const copyrightLabel = [brandName, brandSubtitle].filter(Boolean).join(' ');
+  const copyrightYear = new Date().getFullYear();
+
   return (
     <footer id="contact" className="border-t border-border bg-secondary/30 py-16">
       <div className="mx-auto max-w-7xl px-6">
@@ -104,25 +125,13 @@ export function Footer({ rendering }: FooterProps) {
             <h3 className="mb-4 font-display text-sm font-semibold uppercase tracking-wider text-foreground">
               Contact
             </h3>
-            <div className="space-y-2 text-sm text-muted-foreground">
-              <p>Westfield High School</p>
-              <p>500 Eagles Way</p>
-              <p>Westfield, TX 77024</p>
-              <p className="pt-2">
-                <a
-                  href="mailto:football@westfieldisd.org"
-                  className="text-primary transition-colors hover:text-primary/80"
-                >
-                  football@westfieldisd.org
-                </a>
-              </p>
-            </div>
+            <ContactInfo layout="list" {...contact} />
           </div>
         </div>
 
         <div className="mt-12 border-t border-border pt-8 text-center">
           <p className="text-xs text-muted-foreground">
-            &copy; 2025 Westfield Eagles Football. All rights reserved.
+            &copy; {copyrightYear} {copyrightLabel}. All rights reserved.
           </p>
         </div>
       </div>

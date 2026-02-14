@@ -12,12 +12,8 @@ export const metadata: Metadata = {
 
 export default function SiteLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" className="dark" suppressHydrationWarning>
-      <body>
-        <ClerkProvider>
-          <Providers>{children}</Providers>
-        </ClerkProvider>
-      </body>
-    </html>
+    <ClerkProvider>
+      <Providers>{children}</Providers>
+    </ClerkProvider>
   )
 }

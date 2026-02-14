@@ -70,7 +70,6 @@ export interface Config {
     users: User;
     media: Media;
     'tenant-settings': TenantSetting;
-    players: Player;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -81,7 +80,6 @@ export interface Config {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     'tenant-settings': TenantSettingsSelect<false> | TenantSettingsSelect<true>;
-    players: PlayersSelect<false> | PlayersSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -196,6 +194,12 @@ export interface TenantSetting {
     brandMoto?: string | null;
     brandLogo?: (string | null) | Media;
   };
+  nav?: {
+    /**
+     * External link for the Tickets icon button in the navbar.
+     */
+    ticketsUrl?: string | null;
+  };
   metadata?: {
     /**
      * School or program name (e.g., Westfield).
@@ -209,6 +213,23 @@ export interface TenantSetting {
      * Sport name for SEO (e.g., Football).
      */
     sport?: string | null;
+    /**
+     * Used as the meta description for pages when no page-specific description is provided.
+     */
+    description?: string | null;
+  };
+  contact?: {
+    /**
+     * Short intro paragraph shown under the Contact heading.
+     */
+    contactSnippet?: string | null;
+    addressLine1?: string | null;
+    addressLine2?: string | null;
+    city?: string | null;
+    state?: string | null;
+    zip?: string | null;
+    email?: string | null;
+    phone?: string | null;
   };
   hero?: {
     season?: string | null;
@@ -287,50 +308,46 @@ export interface TenantSetting {
         }[]
       | null;
   };
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "players".
- */
-export interface Player {
-  id: string;
   /**
-   * URL slug, e.g. "marcus-johnson"
+   * Manage your roster here. Each row represents a player for this tenant.
    */
-  slug?: string | null;
-  name: string;
-  number?: string | null;
-  position?: string | null;
-  positionGroup?: ('Offense' | 'Defense' | 'Special Teams')[] | null;
-  /**
-   * Include this player in the home page spotlight section.
-   */
-  spotlight?: boolean | null;
-  /**
-   * Graduation year (e.g., 2026).
-   */
-  year?: string | null;
-  height?: string | null;
-  weight?: string | null;
-  image?: (string | null) | Media;
-  stats?: string | null;
-  /**
-   * Link to the player Hudl profile (e.g., https://www.hudl.com/...).
-   */
-  hudlUrl?: string | null;
-  bio?: string | null;
-  accolades?:
+  players?:
     | {
-        title: string;
+        /**
+         * Auto-generated from name and number.
+         */
+        slug?: string | null;
+        name: string;
+        number?: string | null;
+        position?: string | null;
+        positionGroup?: ('Offense' | 'Defense' | 'Special Teams')[] | null;
+        spotlight?: boolean | null;
+        /**
+         * Graduation year (e.g., 2026).
+         */
+        year?: string | null;
+        height?: string | null;
+        weight?: string | null;
+        image?: (string | null) | Media;
+        stats?: string | null;
+        /**
+         * Link to the player Hudl profile (e.g., https://www.hudl.com/...).
+         */
+        hudlUrl?: string | null;
+        bio?: string | null;
+        accolades?:
+          | {
+              title: string;
+              id?: string | null;
+            }[]
+          | null;
+        /**
+         * Optional ordering value (lower comes first).
+         */
+        sortOrder?: number | null;
         id?: string | null;
       }[]
     | null;
-  /**
-   * Optional ordering value (lower comes first).
-   */
-  sortOrder?: number | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -369,10 +386,6 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'tenant-settings';
         value: string | TenantSetting;
-      } | null)
-    | ({
-        relationTo: 'players';
-        value: string | Player;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -471,12 +484,30 @@ export interface TenantSettingsSelect<T extends boolean = true> {
         brandMoto?: T;
         brandLogo?: T;
       };
+  nav?:
+    | T
+    | {
+        ticketsUrl?: T;
+      };
   metadata?:
     | T
     | {
         teamName?: T;
         mascot?: T;
         sport?: T;
+        description?: T;
+      };
+  contact?:
+    | T
+    | {
+        contactSnippet?: T;
+        addressLine1?: T;
+        addressLine2?: T;
+        city?: T;
+        state?: T;
+        zip?: T;
+        email?: T;
+        phone?: T;
       };
   hero?:
     | T
@@ -543,34 +574,31 @@ export interface TenantSettingsSelect<T extends boolean = true> {
               id?: T;
             };
       };
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "players_select".
- */
-export interface PlayersSelect<T extends boolean = true> {
-  slug?: T;
-  name?: T;
-  number?: T;
-  position?: T;
-  positionGroup?: T;
-  spotlight?: T;
-  year?: T;
-  height?: T;
-  weight?: T;
-  image?: T;
-  stats?: T;
-  hudlUrl?: T;
-  bio?: T;
-  accolades?:
+  players?:
     | T
     | {
-        title?: T;
+        slug?: T;
+        name?: T;
+        number?: T;
+        position?: T;
+        positionGroup?: T;
+        spotlight?: T;
+        year?: T;
+        height?: T;
+        weight?: T;
+        image?: T;
+        stats?: T;
+        hudlUrl?: T;
+        bio?: T;
+        accolades?:
+          | T
+          | {
+              title?: T;
+              id?: T;
+            };
+        sortOrder?: T;
         id?: T;
       };
-  sortOrder?: T;
   updatedAt?: T;
   createdAt?: T;
 }

@@ -9,6 +9,7 @@ export type SiteMetadata = {
   sport: string;
   teamLabel: string;
   titleSuffix: string;
+  description: string;
 };
 
 const DEFAULT_METADATA: SiteMetadata = {
@@ -17,6 +18,7 @@ const DEFAULT_METADATA: SiteMetadata = {
   sport: 'Football',
   teamLabel: 'Westfield Eagles',
   titleSuffix: 'Westfield Eagles Football',
+  description: 'Building champions on and off the field since 1952.',
 };
 
 const buildSiteMetadata = (raw?: Partial<SiteMetadata>): SiteMetadata => {
@@ -25,6 +27,7 @@ const buildSiteMetadata = (raw?: Partial<SiteMetadata>): SiteMetadata => {
   const sport = raw?.sport ?? DEFAULT_METADATA.sport;
   const teamLabel = [teamName, mascot].filter(Boolean).join(' ').trim();
   const titleSuffix = [teamName, mascot, sport].filter(Boolean).join(' ').trim();
+  const description = raw?.description ?? DEFAULT_METADATA.description;
 
   return {
     teamName,
@@ -32,6 +35,7 @@ const buildSiteMetadata = (raw?: Partial<SiteMetadata>): SiteMetadata => {
     sport,
     teamLabel: teamLabel || DEFAULT_METADATA.teamLabel,
     titleSuffix: titleSuffix || DEFAULT_METADATA.titleSuffix,
+    description,
   };
 };
 

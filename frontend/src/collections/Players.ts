@@ -1,4 +1,23 @@
-import type { CollectionConfig } from 'payload';
+import type { CollectionConfig, PayloadRequest } from 'payload';
+import { resolveTenantFromHeaders } from '@/lib/tenancy/resolveTenant';
+
+const resolveTenantId = (req?: PayloadRequest) => {
+  if (!req?.headers) return process.env.DEFAULT_TENANT_ID ?? 'default';
+
+  const headers = req.headers instanceof Headers
+    ? req.headers
+    : new Headers(
+        Object.entries(req.headers as Record<string, string | string[] | undefined>)
+          .flatMap(([key, value]) => {
+            if (!value) return [] as [string, string][];
+            const resolved = Array.isArray(value) ? value[0] : value;
+            if (!resolved) return [] as [string, string][];
+            return [[key, resolved]] as [string, string][];
+          }),
+      );
+
+  return resolveTenantFromHeaders(headers);
+};
 
 const slugify = (value: string) =>
   value
@@ -15,6 +34,12 @@ const Players: CollectionConfig = {
     defaultColumns: ['name', 'number', 'position', 'spotlight', 'updatedAt'],
   },
   hooks: {
+    beforeChange: [
+      ({ req, data }) => {
+        const tenantId = resolveTenantId(req);
+        return { ...data, tenantId };
+      },
+    ],
     beforeValidate: [
       ({ data }) => {
         if (!data) return data;
@@ -28,9 +53,21 @@ const Players: CollectionConfig = {
     ],
   },
   access: {
-    read: () => true,
+    read: ({ req }) => ({ tenantId: { equals: resolveTenantId(req) } }),
+    update: ({ req }) => ({ tenantId: { equals: resolveTenantId(req) } }),
+    delete: ({ req }) => ({ tenantId: { equals: resolveTenantId(req) } }),
+    create: () => true,
   },
   fields: [
+    {
+      name: 'tenantId',
+      type: 'text',
+      required: true,
+      admin: {
+        readOnly: true,
+        position: 'sidebar',
+      },
+    },
     {
       name: 'slug',
       label: 'Slug',

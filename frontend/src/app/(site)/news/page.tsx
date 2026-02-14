@@ -7,11 +7,15 @@ import { NewsSection } from "@/components/sections/NewsSection";
 import { ThemeTokensEffect } from "@/lib/theme/ThemeTokensEffect";
 import { buildThemeStyle } from "@/lib/theme/buildThemeStyle";
 import { getSiteLayout } from "@/lib/services/siteLayout";
+import { getSiteMetadata } from "@/lib/services/metadata";
 
-export const metadata: Metadata = {
-  title: "News | Westfield Eagles Football",
-  description: "Latest news and updates from the Westfield Eagles football program.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const metadata = await getSiteMetadata("/news");
+  return {
+    title: `News | ${metadata.titleSuffix}`,
+    description: metadata.description,
+  };
+}
 
 export default async function NewsPage() {
   const { navbar, footer, theme } = await getSiteLayout("/news");

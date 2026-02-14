@@ -8,11 +8,15 @@ import type { RouteData } from "@/lib/types/cms";
 import { ThemeTokensEffect } from "@/lib/theme/ThemeTokensEffect";
 import { buildThemeStyle } from "@/lib/theme/buildThemeStyle";
 import { getSiteLayout } from "@/lib/services/siteLayout";
+import { getSiteMetadata } from "@/lib/services/metadata";
 
-export const metadata: Metadata = {
-  title: "About | Westfield Eagles Football",
-  description: "Learn more about the Westfield Eagles football program.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const metadata = await getSiteMetadata("/about");
+  return {
+    title: `About | ${metadata.titleSuffix}`,
+    description: metadata.description,
+  };
+}
 
 export default async function AboutPage() {
   const { navbar, footer, theme, main } = await getSiteLayout("/about");

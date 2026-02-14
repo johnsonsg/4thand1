@@ -7,15 +7,20 @@ import { ContactSection } from "@/components/sections/ContactSection";
 import { ThemeTokensEffect } from "@/lib/theme/ThemeTokensEffect";
 import { buildThemeStyle } from "@/lib/theme/buildThemeStyle";
 import { getSiteLayout } from "@/lib/services/siteLayout";
+import { getSiteMetadata } from "@/lib/services/metadata";
 
-export const metadata: Metadata = {
-  title: "Contact | Westfield Eagles Football",
-  description: "Contact the Westfield Eagles football program.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const metadata = await getSiteMetadata("/contact");
+  return {
+    title: `Contact | ${metadata.titleSuffix}`,
+    description: metadata.description,
+  };
+}
 
 export default async function ContactPage() {
-  const { navbar, footer, theme } = await getSiteLayout("/contact");
+  const { navbar, footer, theme, main } = await getSiteLayout("/contact");
   const themeStyle = buildThemeStyle(theme);
+  const contactRendering = main.find((component) => component.componentName === "ContactSection");
 
   return (
     <>
@@ -24,7 +29,7 @@ export default async function ContactPage() {
       <Navbar rendering={navbar} />
       <NavSpacer />
       <main>
-        <ContactSection />
+        <ContactSection rendering={contactRendering} />
       </main>
       <Footer rendering={footer} />
     </>

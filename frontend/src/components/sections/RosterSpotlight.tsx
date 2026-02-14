@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { players as fallbackPlayers, type Player } from "@/lib/players";
+import { type Player } from "@/lib/players";
 import type { ComponentRendering, Field } from "@/lib/types/cms";
 
 type RosterSpotlightProps = {
@@ -15,7 +15,7 @@ type RosterSpotlightFields = {
 
 export function RosterSpotlight({ rendering }: RosterSpotlightProps) {
   const fields = (rendering.fields ?? {}) as unknown as RosterSpotlightFields;
-  const list = fields.players?.value ?? fallbackPlayers;
+  const list = fields.players?.value ?? [];
   const spotlightSelections = list.filter((player) => player.spotlight);
   const spotlightPlayers = (spotlightSelections.length ? spotlightSelections : list).slice(0, 4);
 
@@ -39,7 +39,7 @@ export function RosterSpotlight({ rendering }: RosterSpotlightProps) {
           </Link>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-4">
+        <div className="grid gap-6 md:grid-cols-4">
           {spotlightPlayers.map((player) => (
             <Link
               key={player.id}
@@ -48,7 +48,7 @@ export function RosterSpotlight({ rendering }: RosterSpotlightProps) {
             >
               <div className="relative aspect-3/4">
                 <Image
-                  src={player.image}
+                  src={player.image || "/placeholder.svg"}
                   alt={`${player.name}, ${player.position} #${player.number}`}
                   fill
                   className="object-cover object-top transition-transform duration-500 group-hover:scale-105"

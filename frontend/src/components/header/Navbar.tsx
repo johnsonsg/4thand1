@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Menu, Moon, Sun, X } from "lucide-react";
+import { IoTicketSharp } from "react-icons/io5";
 import { useAtom } from 'jotai';
 import { themeModeAtom } from '@/state/atoms';
 import type { ComponentRendering, Field } from '@/lib/types/cms';
@@ -24,6 +25,7 @@ type NavbarFields = {
   fourthAndOneLabel?: Field<string>;
   fourthAndOneHref?: Field<string>;
   fourthAndOneLogo?: Field<BrandImageValue>;
+  ticketsUrl?: Field<string>;
 };
 
 type BrandFields = Pick<
@@ -93,6 +95,7 @@ export function Navbar({ rendering }: NavbarProps) {
     width: 24,
     height: 24,
   };
+  const ticketsUrl = fields.ticketsUrl?.value ?? '';
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/90 backdrop-blur-md border-b border-border">
@@ -140,6 +143,18 @@ export function Navbar({ rendering }: NavbarProps) {
         </ul>
 
         <div className="hidden items-center gap-3 md:flex">
+          {ticketsUrl ? (
+            <a
+              href={ticketsUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex h-10 items-center gap-2 rounded-md border border-border bg-card/40 px-3 text-sm font-semibold uppercase tracking-wider text-foreground transition-colors hover:border-primary/30 hover:bg-card"
+              aria-label="Tickets"
+            >
+              <IoTicketSharp className="h-5 w-5" />
+              <span className="font-display text-xs">Tickets</span>
+            </a>
+          ) : null}
           <button
             type="button"
             onClick={toggleTheme}
@@ -152,6 +167,17 @@ export function Navbar({ rendering }: NavbarProps) {
 
         {/* Mobile toggle */}
         <div className="flex items-center gap-2 md:hidden">
+          {ticketsUrl ? (
+            <a
+              href={ticketsUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-border bg-card/40 text-foreground transition-colors hover:border-primary/30 hover:bg-card"
+              aria-label="Tickets"
+            >
+              <IoTicketSharp className="h-5 w-5" />
+            </a>
+          ) : null}
           <button
             type="button"
             onClick={toggleTheme}

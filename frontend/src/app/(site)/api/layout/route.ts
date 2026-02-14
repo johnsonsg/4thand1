@@ -77,12 +77,30 @@ type MetadataSettings = {
   teamName?: string | null
   mascot?: string | null
   sport?: string | null
+  description?: string | null
+}
+
+type NavSettings = {
+  ticketsUrl?: string | null
+}
+
+type ContactSettings = {
+  contactSnippet?: string | null
+  addressLine1?: string | null
+  addressLine2?: string | null
+  city?: string | null
+  state?: string | null
+  zip?: string | null
+  email?: string | null
+  phone?: string | null
 }
 
 type TenantSettings = {
   tenantId: string
   brand?: BrandSettings | null
+  nav?: NavSettings | null
   metadata?: MetadataSettings | null
+  contact?: ContactSettings | null
   hero?: HeroSettings | null
   theme?: ThemeSettings | null
   stats?: StatsSettings | null
@@ -169,6 +187,19 @@ const DEFAULT_METADATA: Required<MetadataSettings> = {
   teamName: 'Westfield',
   mascot: 'Eagles',
   sport: 'Football',
+  description: 'Building champions on and off the field since 1952.',
+}
+
+const DEFAULT_CONTACT: Required<ContactSettings> = {
+  contactSnippet:
+    'This is a starter contact page. Later, these fields can be managed in your CMS and rendered through the same layout pipeline.',
+  addressLine1: 'Westfield High School',
+  addressLine2: '500 Eagles Way',
+  city: 'Westfield',
+  state: 'TX',
+  zip: '77024',
+  email: 'football@westfieldisd.org',
+  phone: '(555) 123-4567',
 }
 
 /* ============================================================
@@ -267,6 +298,30 @@ function normalizeMetadataSettings(raw?: MetadataSettings | null): MetadataSetti
     teamName: raw?.teamName ?? null,
     mascot: raw?.mascot ?? null,
     sport: raw?.sport ?? null,
+    description: raw?.description ?? null,
+  }
+}
+
+function normalizeNavSettings(raw?: NavSettings | null): NavSettings {
+  if (!raw) return {}
+
+  return {
+    ticketsUrl: raw?.ticketsUrl ?? null,
+  }
+}
+
+function normalizeContactSettings(raw?: ContactSettings | null): ContactSettings {
+  if (!raw) return {}
+
+  return {
+    contactSnippet: raw?.contactSnippet ?? null,
+    addressLine1: raw?.addressLine1 ?? null,
+    addressLine2: raw?.addressLine2 ?? null,
+    city: raw?.city ?? null,
+    state: raw?.state ?? null,
+    zip: raw?.zip ?? null,
+    email: raw?.email ?? null,
+    phone: raw?.phone ?? null,
   }
 }
 
@@ -537,6 +592,16 @@ async function seedTenantSettingsIfMissing(tenantId: string): Promise<void> {
           teamName: DEFAULT_METADATA.teamName,
           mascot: DEFAULT_METADATA.mascot,
           sport: DEFAULT_METADATA.sport,
+          description: DEFAULT_METADATA.description,
+        },
+        contact: {
+          addressLine1: DEFAULT_CONTACT.addressLine1,
+          addressLine2: DEFAULT_CONTACT.addressLine2,
+          city: DEFAULT_CONTACT.city,
+          state: DEFAULT_CONTACT.state,
+          zip: DEFAULT_CONTACT.zip,
+          email: DEFAULT_CONTACT.email,
+          phone: DEFAULT_CONTACT.phone,
         },
         ...(theme ? { theme } : {}),
         ...(stats.length
@@ -589,11 +654,15 @@ async function layoutForPath(path: string, tenantId: string): Promise<CmsLayoutD
   const tenantSettings = await getTenantSettings(tenantId)
   const baseBrand = await getBrandSettings()
   const tenantBrand = tenantSettings?.brand ? normalizeBrandSettings(tenantSettings.brand) : {}
+  const contact: ContactSettings = tenantSettings?.contact
+    ? normalizeContactSettings(tenantSettings.contact)
+    : { ...DEFAULT_CONTACT }
   const brand: BrandSettings = {
     ...baseBrand,
     ...tenantBrand,
     brandLogo: tenantBrand.brandLogo ?? baseBrand.brandLogo,
   }
+  const nav: NavSettings = tenantSettings?.nav ? normalizeNavSettings(tenantSettings.nav) : {}
   const brandLogo = resolveBrandLogo(brand.brandLogo)
   const statsItems = tenantSettings?.stats
     ? normalizeStatsSettings(tenantSettings.stats)
@@ -633,6 +702,7 @@ async function layoutForPath(path: string, tenantId: string): Promise<CmsLayoutD
       brandName: f(pick(brand.brandName, DEFAULT_BRAND.brandName)),
       brandSubtitle: f(pick(brand.brandSubtitle, DEFAULT_BRAND.brandSubtitle)),
       brandMark: f(pick(brand.brandMark, DEFAULT_BRAND.brandMark)),
+      ...(nav.ticketsUrl ? { ticketsUrl: f(nav.ticketsUrl) } : {}),
       ...(brandLogo ? { brandLogo: f(brandLogo) } : {}),
       navLinks: f([
         { label: 'Schedule', href: '/schedule' },
@@ -661,6 +731,13 @@ async function layoutForPath(path: string, tenantId: string): Promise<CmsLayoutD
       brandMark: f(pick(brand.brandMark, DEFAULT_BRAND.brandMark)),
       brandMoto: f(brand.brandMoto ?? 'Building champions on and off the field since 1952.'),
       ...(brandLogo ? { brandLogo: f(brandLogo) } : {}),
+      addressLine1: f(contact.addressLine1 ?? ''),
+      addressLine2: f(contact.addressLine2 ?? ''),
+      city: f(contact.city ?? ''),
+      state: f(contact.state ?? ''),
+      zip: f(contact.zip ?? ''),
+      email: f(contact.email ?? ''),
+      phone: f(contact.phone ?? ''),
     },
   })
 
@@ -738,7 +815,20 @@ async function layoutForPath(path: string, tenantId: string): Promise<CmsLayoutD
           },
         },
         { uid: 'news-section', componentName: 'NewsSection' },
-        { uid: 'contact-section', componentName: 'ContactSection' },
+        {
+          uid: 'contact-section',
+          componentName: 'ContactSection',
+          fields: {
+            contactSnippet: f(pick(contact.contactSnippet, DEFAULT_CONTACT.contactSnippet)),
+            addressLine1: f(contact.addressLine1 ?? ''),
+            addressLine2: f(contact.addressLine2 ?? ''),
+            city: f(contact.city ?? ''),
+            state: f(contact.state ?? ''),
+            zip: f(contact.zip ?? ''),
+            email: f(contact.email ?? ''),
+            phone: f(contact.phone ?? ''),
+          },
+        },
         footer(),  // Line 479: change this
       ]
     }
@@ -840,7 +930,20 @@ async function layoutForPath(path: string, tenantId: string): Promise<CmsLayoutD
       return [
         navbar(),
         { uid: 'nav-spacer', componentName: 'NavSpacer' },
-        { uid: 'contact-section', componentName: 'ContactSection' },
+        {
+          uid: 'contact-section',
+          componentName: 'ContactSection',
+          fields: {
+            contactSnippet: f(pick(contact.contactSnippet, DEFAULT_CONTACT.contactSnippet)),
+            addressLine1: f(contact.addressLine1 ?? ''),
+            addressLine2: f(contact.addressLine2 ?? ''),
+            city: f(contact.city ?? ''),
+            state: f(contact.state ?? ''),
+            zip: f(contact.zip ?? ''),
+            email: f(contact.email ?? ''),
+            phone: f(contact.phone ?? ''),
+          },
+        },
         footer(),  // Line 548: change this
       ]
     }
@@ -938,14 +1041,29 @@ export async function GET(request: Request) {
     const tenantId = resolveTenantFromRequest(request)
     const tenantSettings = await getTenantSettings(tenantId)
     const theme = await getThemeConfig(tenantId)
+    const baseBrand = await getBrandSettings()
+    const tenantBrand = tenantSettings?.brand ? normalizeBrandSettings(tenantSettings.brand) : {}
+    const brand: BrandSettings = {
+      ...baseBrand,
+      ...tenantBrand,
+      brandLogo: tenantBrand.brandLogo ?? baseBrand.brandLogo,
+    }
     const metadataFromTenant = tenantSettings?.metadata
       ? normalizeMetadataSettings(tenantSettings.metadata)
       : {}
+    const contactFromTenant = tenantSettings?.contact
+      ? normalizeContactSettings(tenantSettings.contact)
+      : null
     const metadata: MetadataSettings = {
       teamName: metadataFromTenant.teamName ?? DEFAULT_METADATA.teamName,
       mascot: metadataFromTenant.mascot ?? DEFAULT_METADATA.mascot,
       sport: metadataFromTenant.sport ?? DEFAULT_METADATA.sport,
+      description:
+        metadataFromTenant.description ?? brand.brandMoto ?? DEFAULT_METADATA.description,
     }
+    const contact: ContactSettings = contactFromTenant
+      ? contactFromTenant
+      : { ...DEFAULT_CONTACT }
     const themeFromPayload = tenantSettings?.theme
       ? normalizeThemeSettings(tenantSettings.theme)
       : await getThemeSettings()
@@ -954,7 +1072,7 @@ export async function GET(request: Request) {
       dark: { ...theme.dark, ...themeFromPayload?.dark },
     }
     const layout = await layoutForPath(path, tenantId)
-    layout.cms.context = { ...layout.cms.context, theme: mergedTheme, metadata }
+    layout.cms.context = { ...layout.cms.context, theme: mergedTheme, metadata, contact }
 
     return NextResponse.json(layout)
   } catch (error) {
