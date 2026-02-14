@@ -27,3 +27,32 @@
 .MuiInputLabel-root.Mui-focused {
   color: var(--theme-brand, #d4a017);
 }
+
+.tenant-settings-tabs.tabs-field {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+.tenant-settings-tabs .tabs-field__tabs-wrap {
+  flex: 0 0 220px;
+}
+
+.tenant-settings-tabs .tabs-field__tabs {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
+  border-right: 1px solid var(--theme-elevation-150, #2a3342);
+  padding-right: 12px;
+}
+
+.tenant-settings-tabs .tabs-field__tab {
+  width: 100%;
+  justify-content: flex-start;
+}
+
+.tenant-settings-tabs .tabs-field__content-wrap {
+  flex: 1 1 auto;
+  min-width: 0;
+}
