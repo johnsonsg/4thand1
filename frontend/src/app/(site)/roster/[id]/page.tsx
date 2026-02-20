@@ -9,6 +9,9 @@ import { Navbar } from "@/components/header/Navbar";
 import { Footer } from "@/components/footer/Footer";
 import NavSpacer from "@/components/rendering/NavSpacer";
 import { HudlIconButton } from "@/components/buttons/HudlIconButton";
+import { FacebookIconButton } from "@/components/buttons/FacebookIconButton";
+import { InstagramIconButton } from "@/components/buttons/InstagramIconButton";
+import { TwitterXIconButton } from "@/components/buttons/Twitter-X-IconButton";
 import { ThemeTokensEffect } from "@/lib/theme/ThemeTokensEffect";
 import { buildThemeStyle } from "@/lib/theme/buildThemeStyle";
 import { getSiteLayout } from "@/lib/services/siteLayout";
@@ -41,6 +44,7 @@ export default async function PlayerProfilePage({
 
   const { navbar, footer, theme } = await getSiteLayout("/roster");
   const themeStyle = buildThemeStyle(theme);
+  const metadata = await getSiteMetadata("/roster");
 
   return (
     <>
@@ -141,7 +145,7 @@ export default async function PlayerProfilePage({
                 </div>
 
                 {player.accolades.length > 0 && (
-                  <div>
+                  <div className="mb-10">
                     <h2 className="mb-3 font-display text-sm font-semibold uppercase tracking-[0.2em] text-primary">
                       Accolades
                     </h2>
@@ -158,6 +162,28 @@ export default async function PlayerProfilePage({
                     </ul>
                   </div>
                 )}
+                <div className="mb-10">
+                  <h2 className="mb-3 font-display text-sm font-semibold uppercase tracking-[0.2em] text-primary">
+                    Share
+                  </h2>
+                  <TwitterXIconButton
+                    href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(
+                      `Spotlight: ${player.name} #${player.number} - ${player.position} for ${metadata.teamLabel}. ${player.stats}`
+                    )}&url=${encodeURIComponent(
+                      `${process.env.NEXT_PUBLIC_SITE_URL || ""}/roster/${id}`
+                    )}`}
+                  />
+                  <InstagramIconButton
+                    href={`https://www.instagram.com/?url=${encodeURIComponent(
+                      `${process.env.NEXT_PUBLIC_SITE_URL || ""}/roster/${id}`
+                    )}`}
+                  />
+                  <FacebookIconButton
+                    href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
+                      `${process.env.NEXT_PUBLIC_SITE_URL || ""}/roster/${id}`
+                    )}`}
+                  />
+                </div>
               </div>
             </div>
           </div>
