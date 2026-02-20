@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getPlayerBySlug, getPlayerSlugs } from "@/lib/services/players";
+import { getPlayerBySlug } from "@/lib/services/players";
 import { getSiteMetadata } from "@/lib/services/metadata";
 import { ArrowLeft } from "lucide-react";
 import { Navbar } from "@/components/header/Navbar";
@@ -13,10 +13,7 @@ import { ThemeTokensEffect } from "@/lib/theme/ThemeTokensEffect";
 import { buildThemeStyle } from "@/lib/theme/buildThemeStyle";
 import { getSiteLayout } from "@/lib/services/siteLayout";
 
-export async function generateStaticParams() {
-  const slugs = await getPlayerSlugs();
-  return slugs.map((id) => ({ id }));
-}
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
   params,
