@@ -67,7 +67,7 @@ const resolvePlayerImage = (value?: MediaLike | string | null): string => {
 const isPositionGroup = (value: string): value is PositionGroup =>
   value === 'Offense' || value === 'Defense' || value === 'Special Teams';
 
-const normalizePositionGroups = (value?: PlayerDoc['positionGroup']): PositionGroup[] => {
+const normalizePositionGroups = (value?: PlayerEntry['positionGroup']): PositionGroup[] => {
   if (Array.isArray(value)) {
     return value.filter(isPositionGroup);
   }
