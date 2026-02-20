@@ -129,32 +129,39 @@ export function HeroSection({ rendering }: HeroSectionProps) {
 						sx={primaryButtonSx}>
 						{primaryCta.label}
 					</MuiButton>
-					<MuiButton
-						variant="outlined"
-						size="large"
-						component={Link}
-						href={secondaryCta.href}
-						sx={secondaryButtonSx}>
-						{secondaryCta.label}
-					</MuiButton>
 
-					<MuiButton
-						variant="outlined"
-						size="large"
-						component={Link}
-						href={tertiaryCta.href}
-						sx={secondaryButtonSx}>
-						{tertiaryCta.label}
-					</MuiButton>
+					{!secondaryCta.href && (
+						<MuiButton
+							variant="outlined"
+							size="large"
+							component={Link}
+							href={secondaryCta.href}
+							sx={secondaryButtonSx}>
+							{secondaryCta.label}
+						</MuiButton>
+					)}
 
-					<MuiButton
-						variant="outlined"
-						size="large"
-						component={Link}
-						href={quaternaryCta.href}
-						sx={secondaryButtonSx}>
-						{quaternaryCta.label}
-					</MuiButton>
+					{!tertiaryCta.href && (
+						<MuiButton
+							variant="outlined"
+							size="large"
+							component={Link}
+							href={tertiaryCta.href}
+							sx={secondaryButtonSx}>
+							{tertiaryCta.label}
+						</MuiButton>
+					)}
+
+					{!quaternaryCta.href && (
+						<MuiButton
+							variant="outlined"
+							size="large"
+							component={Link}
+							href={quaternaryCta.href}
+							sx={secondaryButtonSx}>
+							{quaternaryCta.label}
+						</MuiButton>
+					)}
 				</div>
 			</div>
 		</section>
