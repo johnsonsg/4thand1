@@ -18,6 +18,13 @@ export function RosterSpotlight({ rendering }: RosterSpotlightProps) {
   const list = fields.players?.value ?? [];
   const spotlightSelections = list.filter((player) => player.spotlight);
   const spotlightPlayers = (spotlightSelections.length ? spotlightSelections : list).slice(0, 4);
+  const columnCount = Math.min(Math.max(spotlightPlayers.length, 2), 4);
+  const columnsClassName =
+    columnCount === 2
+      ? 'md:grid-cols-2'
+      : columnCount === 3
+        ? 'md:grid-cols-3'
+        : 'md:grid-cols-4';
 
   return (
     <section id="roster" className="bg-secondary/50 py-14">
@@ -39,7 +46,7 @@ export function RosterSpotlight({ rendering }: RosterSpotlightProps) {
           </Link>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-4">
+        <div className={`grid gap-6 ${columnsClassName}`}>
           {spotlightPlayers.map((player) => (
             <Link
               key={player.id}

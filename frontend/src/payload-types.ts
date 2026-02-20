@@ -348,6 +348,28 @@ export interface TenantSetting {
         id?: string | null;
       }[]
     | null;
+  /**
+   * Articles for the News section and news detail pages.
+   */
+  news?:
+    | {
+        /**
+         * Auto-generated from title.
+         */
+        slug?: string | null;
+        title: string;
+        category: string;
+        author: string;
+        excerpt: string;
+        publishedAt: string;
+        image?: (string | null) | Media;
+        body: {
+          paragraph: string;
+          id?: string | null;
+        }[];
+        id?: string | null;
+      }[]
+    | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -597,6 +619,24 @@ export interface TenantSettingsSelect<T extends boolean = true> {
               id?: T;
             };
         sortOrder?: T;
+        id?: T;
+      };
+  news?:
+    | T
+    | {
+        slug?: T;
+        title?: T;
+        category?: T;
+        author?: T;
+        excerpt?: T;
+        publishedAt?: T;
+        image?: T;
+        body?:
+          | T
+          | {
+              paragraph?: T;
+              id?: T;
+            };
         id?: T;
       };
   updatedAt?: T;

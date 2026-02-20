@@ -84,7 +84,18 @@ const TenantSettings: CollectionConfig = {
               return { ...player, slug, ...(normalizedImage === null ? { image: null } : { image: normalizedImage }) };
             })
           : (data as any)?.players;
-        return { ...data, tenantId, ...(players ? { players } : {}) };
+        const news = Array.isArray((data as any)?.news)
+          ? (data as any).news.map((item: any) => {
+              if (!item) return item;
+              const title = item?.title ? String(item.title) : '';
+              const slug = item?.slug || (title ? slugify(title) : undefined);
+              const image = item?.image;
+              const imageValue = image && typeof image === 'object' && 'id' in image ? image : image;
+              const normalizedImage = imageValue === '' || imageValue == null ? null : imageValue;
+              return { ...item, slug, ...(normalizedImage === null ? { image: null } : { image: normalizedImage }) };
+            })
+          : (data as any)?.news;
+        return { ...data, tenantId, ...(players ? { players } : {}), ...(news ? { news } : {}) };
       },
     ],
   },
@@ -506,6 +517,7 @@ const TenantSettings: CollectionConfig = {
               type: 'array',
               admin: {
                 description: 'Manage your roster here. Each row represents a player for this tenant.',
+                hidden: true,
               },
               fields: [
                 {
@@ -581,6 +593,77 @@ const TenantSettings: CollectionConfig = {
                   admin: {
                     description: 'Optional ordering value (lower comes first).',
                   },
+                },
+              ],
+            },
+          ],
+        },
+        {
+          label: 'News',
+          fields: [
+            {
+              name: 'news',
+              label: 'News Articles',
+              type: 'array',
+              admin: {
+                description: 'Articles for the News section and news detail pages.',
+              },
+              fields: [
+                {
+                  name: 'slug',
+                  label: 'Slug',
+                  type: 'text',
+                  admin: {
+                    readOnly: true,
+                    description: 'Auto-generated from title.',
+                  },
+                },
+                { name: 'title', label: 'Title', type: 'text', required: true },
+                {
+                  name: 'category',
+                  label: 'Category',
+                  type: 'text',
+                  required: true,
+                },
+                {
+                  name: 'author',
+                  label: 'Author',
+                  type: 'text',
+                  required: true,
+                },
+                {
+                  name: 'excerpt',
+                  label: 'Excerpt',
+                  type: 'textarea',
+                  required: true,
+                },
+                {
+                  name: 'publishedAt',
+                  label: 'Published At',
+                  type: 'date',
+                  required: true,
+                  defaultValue: () => new Date().toISOString(),
+                },
+                {
+                  name: 'image',
+                  label: 'Featured Image',
+                  type: 'upload',
+                  relationTo: 'media',
+                  required: false,
+                },
+                {
+                  name: 'body',
+                  label: 'Body',
+                  type: 'array',
+                  required: true,
+                  fields: [
+                    {
+                      name: 'paragraph',
+                      label: 'Paragraph',
+                      type: 'textarea',
+                      required: true,
+                    },
+                  ],
                 },
               ],
             },

@@ -4,14 +4,27 @@ import Image from "next/image";
 import Link from "next/link";
 import MuiCard from "@mui/material/Card";
 import MuiCardContent from "@mui/material/CardContent";
-import { articles } from "@/lib/articles";
+import type { ComponentRendering, Field } from "@/lib/types/cms";
+import type { Article } from "@/lib/articles";
+import { articles as fallbackArticles } from "@/lib/articles";
 
+type NewsSectionFields = {
+  articles?: Field<Article[]>;
+  showViewAll?: Field<boolean>;
+};
 
 type NewsSectionProps = {
   showViewAll?: boolean;
+  articles?: Article[];
+  rendering?: ComponentRendering;
 };
 
-export function NewsSection({ showViewAll = true }: NewsSectionProps) {
+export function NewsSection({ showViewAll, articles, rendering }: NewsSectionProps) {
+  const fields = (rendering?.fields ?? {}) as NewsSectionFields;
+  const resolvedShowViewAll = showViewAll ?? fields.showViewAll?.value ?? true;
+  const resolvedArticles = articles ?? fields.articles?.value ?? fallbackArticles;
+  const displayArticles = resolvedShowViewAll ? resolvedArticles.slice(0, 3) : resolvedArticles;
+
   return (
     <section id="news" className="py-14">
       <div className="mx-auto max-w-7xl px-6">
@@ -24,7 +37,7 @@ export function NewsSection({ showViewAll = true }: NewsSectionProps) {
               Eagles News
             </h2>
           </div>
-          {showViewAll ? (
+          {resolvedShowViewAll ? (
             <Link
               href="/news"
               className="hidden font-display text-sm font-medium uppercase tracking-wider text-primary transition-colors hover:text-primary/80 md:block"
@@ -35,7 +48,7 @@ export function NewsSection({ showViewAll = true }: NewsSectionProps) {
         </div>
 
         <div className="grid gap-6 md:grid-cols-3">
-          {articles.map((article) => (
+          {displayArticles.map((article) => (
             <MuiCard
               key={article.title}
               component={Link}

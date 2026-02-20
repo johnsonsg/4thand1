@@ -10,6 +10,7 @@ import type { CmsLayoutData, ComponentRendering, Field } from '@/lib/types/cms'
 import { getThemeConfig } from '@/lib/theme/themeStore'
 import { resolveTenantFromRequest } from '@/lib/tenancy/resolveTenant'
 import { getPlayers } from '@/lib/services/players'
+import { getNewsArticles } from '@/lib/services/news'
 import type { ThemeConfig, ThemeTokens } from '@/lib/theme/ThemeTokensEffect'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
@@ -672,6 +673,7 @@ async function layoutForPath(path: string, tenantId: string): Promise<CmsLayoutD
     : await getScheduleSettings()
 
   const rosterPlayers = await getPlayers()
+  const newsArticles = await getNewsArticles({ tenantId, limit: 6 })
 
   // Demo “mock CMS” content
   const title = (() => {
@@ -814,7 +816,13 @@ async function layoutForPath(path: string, tenantId: string): Promise<CmsLayoutD
             players: f(rosterPlayers),
           },
         },
-        { uid: 'news-section', componentName: 'NewsSection' },
+        {
+          uid: 'news-section',
+          componentName: 'NewsSection',
+          fields: {
+            articles: f(newsArticles),
+          },
+        },
         {
           uid: 'contact-section',
           componentName: 'ContactSection',
@@ -921,7 +929,13 @@ async function layoutForPath(path: string, tenantId: string): Promise<CmsLayoutD
       return [
         navbar(),
         { uid: 'nav-spacer', componentName: 'NavSpacer' },
-        { uid: 'news-section', componentName: 'NewsSection' },
+        {
+          uid: 'news-section',
+          componentName: 'NewsSection',
+          fields: {
+            articles: f(newsArticles),
+          },
+        },
         footer(),  // Line 541: change this
       ]
     }

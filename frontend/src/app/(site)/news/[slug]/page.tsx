@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Navbar } from "@/components/header/Navbar";
 import { Footer } from "@/components/footer/Footer";
-import { articles, getArticleBySlug } from "@/lib/articles";
+import { getNewsArticleBySlug } from "@/lib/services/news";
 import { ArrowLeft } from "lucide-react";
 import type { Metadata } from "next";
 import { ThemeTokensEffect } from "@/lib/theme/ThemeTokensEffect";
@@ -11,17 +11,13 @@ import { buildThemeStyle } from "@/lib/theme/buildThemeStyle";
 import { getSiteLayout } from "@/lib/services/siteLayout";
 import { getSiteMetadata } from "@/lib/services/metadata";
 
-export async function generateStaticParams() {
-  return articles.map((article) => ({ slug: article.slug }));
-}
-
 export async function generateMetadata({
   params,
 }: {
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const article = getArticleBySlug(slug);
+  const article = await getNewsArticleBySlug(slug);
   if (!article) return { title: "Article Not Found" };
   const metadata = await getSiteMetadata("/news");
   return {
@@ -36,7 +32,7 @@ export default async function ArticlePage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const article = getArticleBySlug(slug);
+  const article = await getNewsArticleBySlug(slug);
 
   if (!article) {
     notFound();
@@ -97,9 +93,9 @@ export default async function ArticlePage({
           </div>
 
           {/* Featured image -- inline, constrained */}
-          <div className="relative mb-12 aspect-[16/9] w-full overflow-hidden rounded-xl border border-border">
+          <div className="relative mb-12 aspect-video w-full overflow-hidden rounded-xl border border-border">
             <Image
-              src={article.image}
+              src={article.image || "/images/news-1.jpg"}
               alt={article.title}
               fill
               className="object-cover object-top"

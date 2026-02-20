@@ -8,6 +8,7 @@ import { ThemeTokensEffect } from "@/lib/theme/ThemeTokensEffect";
 import { buildThemeStyle } from "@/lib/theme/buildThemeStyle";
 import { getSiteLayout } from "@/lib/services/siteLayout";
 import { getSiteMetadata } from "@/lib/services/metadata";
+import { getNewsArticles } from "@/lib/services/news";
 
 export async function generateMetadata(): Promise<Metadata> {
   const metadata = await getSiteMetadata("/news");
@@ -19,6 +20,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function NewsPage() {
   const { navbar, footer, theme } = await getSiteLayout("/news");
+  const newsArticles = await getNewsArticles();
   const themeStyle = buildThemeStyle(theme);
 
   return (
@@ -28,7 +30,7 @@ export default async function NewsPage() {
       <Navbar rendering={navbar} />
       <NavSpacer />
       <main>
-        <NewsSection showViewAll={false} />
+        <NewsSection showViewAll={false} articles={newsArticles} />
       </main>
       <Footer rendering={footer} />
     </>
