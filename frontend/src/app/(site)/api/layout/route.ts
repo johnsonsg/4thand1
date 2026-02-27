@@ -11,7 +11,7 @@ import { getThemeConfig } from '@/lib/theme/themeStore'
 import { resolveTenantFromRequest } from '@/lib/tenancy/resolveTenant'
 import { getPlayers } from '@/lib/services/players'
 import { getNewsArticles } from '@/lib/services/news'
-import type { ThemeConfig, ThemeTokens } from '@/lib/theme/ThemeTokensEffect'
+import type { ThemeConfig, ThemeTokens } from "@/lib/theme/types";
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 
@@ -72,6 +72,9 @@ type BrandSettings = {
 type ThemeSettings = {
   light?: ThemeTokens | null
   dark?: ThemeTokens | null
+  headshots?: {
+    backgroundColor?: string | null
+  }
 }
 
 type MetadataSettings = {
@@ -471,6 +474,7 @@ function normalizeThemeSettings(raw?: ThemeSettings | null): ThemeConfig | null 
   return {
     light: raw?.light ?? undefined,
     dark: raw?.dark ?? undefined,
+    headshots: raw?.headshots ?? undefined,
   }
 }
 
@@ -1082,9 +1086,15 @@ export async function GET(request: Request) {
       ? normalizeThemeSettings(tenantSettings.theme)
       : await getThemeSettings()
     const mergedTheme: ThemeConfig = {
-      light: { ...theme.light, ...themeFromPayload?.light },
-      dark: { ...theme.dark, ...themeFromPayload?.dark },
-    }
+      light: { ...(theme?.light ?? {}), ...(themeFromPayload?.light ?? {}) },
+      dark: { ...(theme?.dark ?? {}), ...(themeFromPayload?.dark ?? {}) },
+      headshots: {
+        backgroundColor:
+          themeFromPayload?.headshots?.backgroundColor ??
+          theme?.headshots?.backgroundColor ??
+          null,
+      },
+    };
     const layout = await layoutForPath(path, tenantId)
     layout.cms.context = { ...layout.cms.context, theme: mergedTheme, metadata, contact }
 

@@ -39,12 +39,30 @@ type PlayerEntry = {
   bio?: string | null;
   accolades?: Array<{ title?: string | null }> | null;
   sortOrder?: number | null;
+  headshotProcessedKey?: string | null;
+  headshotStatus?: "none" | "queued" | "processing" | "processed" | "failed" | null;
 };
 
 type PlayerFormValues = Omit<PlayerEntry, 'positionGroup' | 'accolades'> & {
   positionGroup: Player['positionGroup'];
   accoladesText?: string;
   accolades?: PlayerEntry['accolades'];
+};
+
+const B2_PUBLIC_BASE_URL =
+  process.env.NEXT_PUBLIC_B2_PUBLIC_BASE_URL ??
+  "https://4thand1.s3.us-east-005.backblazeb2.com";
+
+const resolvePlayerHeadshotUrl = (entry?: PlayerEntry | null): string => {
+  if (!entry) return "";
+
+  // ✅ If processed, use B2
+  if (entry.headshotStatus === "processed" && entry.headshotProcessedKey) {
+    return `${B2_PUBLIC_BASE_URL}/${entry.headshotProcessedKey}`;
+  }
+
+  // fallback to upload/media
+  return resolvePlayerImage(entry.image);
 };
 
 const isPositionGroup = (value: string): value is Player['positionGroup'][number] =>
@@ -410,10 +428,11 @@ export default function TenantRosterTable() {
                           }}
                         >
                           {(() => {
-                            const raw = resolvePlayerImage(entry?.image);
-                            const src = raw && !raw.startsWith('/') && !raw.startsWith('http')
-                              ? imageMap[raw]
-                              : raw;
+                            const raw = resolvePlayerHeadshotUrl(entry);
+                            const src =
+                              raw && !raw.startsWith("/") && !raw.startsWith("http")
+                                ? imageMap[raw] // only applies if raw is a media ID
+                                : raw;
                             return src ? (
                             <img
                               src={src}
@@ -426,22 +445,35 @@ export default function TenantRosterTable() {
                           })()}
                         </div>
                         <div>
-                          <button
-                            type="button"
-                            onClick={() => openEditDialog(entryIndex, entry)}
-                            style={{
-                              padding: 0,
-                              border: 0,
-                              background: 'transparent',
-                              fontSize: '0.85rem',
-                              fontWeight: 600,
-                              textTransform: 'uppercase',
-                              color: 'inherit',
-                              cursor: 'pointer',
-                            }}
-                          >
-                            {player.name}
-                          </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                // Scroll/focus the corresponding player accordion in Add/Manage Players array
+                                const accordion = document.querySelector(
+                                  `[data-player-row-index="${entryIndex}"]`
+                                );
+                                if (accordion) {
+                                  accordion.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                  // Optionally focus the accordion header
+                                  const header = accordion.querySelector('[role="button"], .array-field__row-label');
+                                  if (header) {
+                                    (header as HTMLElement).focus();
+                                  }
+                                }
+                              }}
+                              style={{
+                                padding: 0,
+                                border: 0,
+                                background: 'transparent',
+                                fontSize: '0.85rem',
+                                fontWeight: 600,
+                                textTransform: 'uppercase',
+                                color: 'inherit',
+                                cursor: 'pointer',
+                              }}
+                            >
+                              {player.name}
+                            </button>
                         </div>
                       </div>
                     </td>
@@ -455,6 +487,7 @@ export default function TenantRosterTable() {
                       <input
                         type="checkbox"
                         checked={Boolean(entry?.spotlight)}
+                        title="Spotlight"
                         onClick={(event) => event.stopPropagation()}
                         onChange={(event) => {
                           const next = Array.isArray(playersValue) ? [...playersValue] : [];

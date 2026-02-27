@@ -13,15 +13,20 @@ const nextConfig = {
   },
 
   images: {
-    remotePatterns: [
-      {
-        protocol: 'http',
-        hostname: 'localhost',
-        port: '3000',
-        pathname: '/cms-api/**',
-      },
-    ],
-  },
+  remotePatterns: [
+    {
+      protocol: 'http',
+      hostname: 'localhost',
+      port: '3000',
+      pathname: '/cms-api/**',
+    },
+    {
+      protocol: 'https',
+      hostname: '4thand1.s3.us-east-005.backblazeb2.com',
+      pathname: '/**',
+    },
+  ],
+},
 }
 
 export default withPayload(nextConfig)

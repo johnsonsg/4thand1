@@ -3,7 +3,9 @@ import type { GetServerSideProps } from 'next';
 import type { CmsLayoutData } from '@/lib/types/cms';
 import Placeholder from '@/lib/utils/Placeholder';
 import { fetchLayoutData } from '@/lib/services/layout';
-import { ThemeTokensEffect, type ThemeConfig } from '@/lib/theme/ThemeTokensEffect';
+import { ThemeTokensEffect } from '@/lib/theme/ThemeTokensEffect';
+import type { ThemeConfig } from "@/lib/theme/types";
+
 
 type PageProps = {
   layoutData: CmsLayoutData;

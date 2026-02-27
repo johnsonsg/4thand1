@@ -58,7 +58,7 @@ export function RosterSpotlight({ rendering }: RosterSpotlightProps) {
                   src={player.image || "/placeholder.svg"}
                   alt={`${player.name}, ${player.position} #${player.number}`}
                   fill
-                  className="object-cover object-top transition-transform duration-500 group-hover:scale-105"
+                  className="object-cover object-top transition-transform duration-500 group-hover:scale-105 bg-slate-800"
                 />
                 <div className="absolute inset-0 bg-linear-to-t from-background via-background/40 to-transparent" />
               </div>

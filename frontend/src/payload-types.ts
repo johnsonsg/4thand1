@@ -274,6 +274,12 @@ export interface TenantSetting {
        */
       secondary?: string | null;
     };
+    headshots?: {
+      /**
+       * Background behind player headshots (hex or HSL).
+       */
+      backgroundColor?: string | null;
+    };
   };
   stats?: {
     items?:
@@ -345,6 +351,11 @@ export interface TenantSetting {
          * Optional ordering value (lower comes first).
          */
         sortOrder?: number | null;
+        headshotOriginalKey?: string | null;
+        headshotProcessedKey?: string | null;
+        headshotUploadId?: string | null;
+        headshotStatus?: ('none' | 'queued' | 'processing' | 'processed' | 'failed') | null;
+        headshotLastError?: string | null;
         id?: string | null;
       }[]
     | null;
@@ -564,6 +575,11 @@ export interface TenantSettingsSelect<T extends boolean = true> {
               primary?: T;
               secondary?: T;
             };
+        headshots?:
+          | T
+          | {
+              backgroundColor?: T;
+            };
       };
   stats?:
     | T
@@ -619,6 +635,11 @@ export interface TenantSettingsSelect<T extends boolean = true> {
               id?: T;
             };
         sortOrder?: T;
+        headshotOriginalKey?: T;
+        headshotProcessedKey?: T;
+        headshotUploadId?: T;
+        headshotStatus?: T;
+        headshotLastError?: T;
         id?: T;
       };
   news?:

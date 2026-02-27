@@ -1,5 +1,33 @@
 import type { CollectionConfig, Field, PayloadRequest } from 'payload';
 import { resolveTenantFromHeaders } from '@/lib/tenancy/resolveTenant';
+import crypto from "node:crypto";
+import configPromise from "@payload-config";
+import { getPayload } from "payload";
+
+type MediaDoc = {
+  id: string;
+  filename?: string | null;
+  url?: string | null;
+  mimeType?: string | null;
+};
+
+async function getMediaDoc(imageValue: any): Promise<MediaDoc | null> {
+  if (!imageValue) return null;
+
+  // If populated already
+  if (typeof imageValue === "object" && imageValue.id) {
+    return imageValue as MediaDoc;
+  }
+
+  // If it's an ID string
+  if (typeof imageValue === "string") {
+    const payload = await getPayload({ config: configPromise });
+    const doc = await payload.findByID({ collection: "media", id: imageValue, depth: 0 });
+    return doc as any;
+  }
+
+  return null;
+}
 
 const resolveTenantId = (req?: PayloadRequest) => {
   if (!req?.headers) return process.env.DEFAULT_TENANT_ID ?? 'default';
@@ -81,7 +109,8 @@ const TenantSettings: CollectionConfig = {
               const image = player?.image;
               const imageValue = image && typeof image === 'object' && 'id' in image ? image : image;
               const normalizedImage = imageValue === '' || imageValue == null ? null : imageValue;
-              return { ...player, slug, ...(normalizedImage === null ? { image: null } : { image: normalizedImage }) };
+              const headshotStatus = player?.headshotStatus || 'none';
+              return { ...player, slug, headshotStatus, ...(normalizedImage === null ? { image: null } : { image: normalizedImage }) };
             })
           : (data as any)?.players;
         const news = Array.isArray((data as any)?.news)
@@ -96,6 +125,85 @@ const TenantSettings: CollectionConfig = {
             })
           : (data as any)?.news;
         return { ...data, tenantId, ...(players ? { players } : {}), ...(news ? { news } : {}) };
+      },
+      async ({ data, originalDoc, req }) => {
+        if (!originalDoc?.players || !data?.players) return data;
+
+        const tenantId = (data as any).tenantId || (originalDoc as any).tenantId || "default";
+
+        const cookieHeader =
+          (req?.headers instanceof Headers
+            ? req.headers.get("cookie")
+            : (req?.headers as any)?.cookie) || "";
+
+        // helper to compare image value safely
+        const mediaId = (v: any) => (typeof v === "string" ? v : v?.id ?? v?._id ?? null);
+        
+        for (const player of (data as any).players) {
+          const prev = (originalDoc.players as any[]).find((p) => p.slug === player.slug);
+
+          const currId = mediaId(player?.image);
+          const prevId = mediaId(prev?.image);
+
+
+           const imageChanged = Boolean(currId) && currId !== prevId;
+          if (!imageChanged) continue;
+
+          console.log("New image detected for player:", player.name);
+
+          const mediaDoc = await getMediaDoc(player.image);
+          if (!mediaDoc || !mediaDoc.filename) {
+            console.log("Could not resolve media doc");
+            continue;
+          }
+
+          const base = process.env.PAYLOAD_PUBLIC_SERVER_URL || "http://localhost:3000";
+          const url = `${base}/cms-api/media/file/${mediaDoc.filename}`;
+
+          const res = await fetch(url, { headers: { cookie: cookieHeader } });
+          if (!res.ok) {
+            const txt = await res.text().catch(() => "");
+            throw new Error(`Media download failed ${res.status}: ${txt}`);
+          }
+
+          const buffer = Buffer.from(await res.arrayBuffer());
+
+          // Convert everything to PNG so we standardize format
+          const sharp = (await import("sharp")).default;
+          const pngBuffer = await sharp(buffer).png().toBuffer();
+
+          const uploadId = crypto.randomUUID();
+
+          // Always store as PNG
+          const originalKey = `tenants/${tenantId}/players/${player.slug}/headshot/original/${uploadId}.png`;
+
+          const { b2PutObjectBuffer } = await import("@/lib/b2/object");
+          await b2PutObjectBuffer(originalKey, pngBuffer, "image/png");
+
+          console.log("Uploaded original PNG to B2:", originalKey);
+
+          // mutate the player row directly (NO payload.update here)
+          player.headshotOriginalKey = originalKey;
+          player.headshotProcessedKey = null;
+          player.headshotUploadId = uploadId;
+          player.headshotStatus = "queued";
+          player.headshotLastError = null;
+
+          // Send Inngest event
+          const { inngest } = await import("@/lib/inngest/client");
+          await inngest.send({
+            name: "player/headshot.uploaded",
+            data: {
+              tenantId,
+              playerId: player.slug, // whichever your processor expects
+              originalKey,
+              uploadId,
+            },
+          });
+
+          console.log("Inngest event sent");
+        }
+        return data;
       },
     ],
   },
@@ -392,6 +500,23 @@ const TenantSettings: CollectionConfig = {
                   label: 'Dark Mode',
                   fields: tokenFields(),
                 },
+                {
+                  name: 'headshots',
+                  type: 'group',
+                  label: 'Player Headshots',
+                  fields: [
+                    {
+                      name: 'backgroundColor',
+                      type: 'text',
+                      label: 'Headshot Background Color',
+                      admin: {
+                        description: 'Background behind player headshots (hex or HSL).',
+                        components: { Field: '/src/components/ColorPickerField#default' },
+                      },
+                      defaultValue: '#000000', // pick your default
+                    },
+                  ],
+                },
               ],
             },
           ],
@@ -517,7 +642,9 @@ const TenantSettings: CollectionConfig = {
               type: 'array',
               admin: {
                 description: 'Manage your roster here. Each row represents a player for this tenant.',
-                hidden: true,
+                components: {
+                  RowLabel: '/src/components/admin/PlayerRowLabel#default',
+                },
               },
               fields: [
                 {
@@ -593,6 +720,38 @@ const TenantSettings: CollectionConfig = {
                   admin: {
                     description: 'Optional ordering value (lower comes first).',
                   },
+                },
+                {
+                  name: 'headshotOriginalKey',
+                  label: 'Headshot Original Key',
+                  type: 'text',
+                  admin: { readOnly: true },
+                },
+                {
+                  name: 'headshotProcessedKey',
+                  label: 'Headshot Processed Key',
+                  type: 'text',
+                  admin: { readOnly: true },
+                },
+                {
+                  name: 'headshotUploadId',
+                  label: 'Headshot Upload ID',
+                  type: 'text',
+                  admin: { readOnly: true },
+                },
+                {
+                  name: 'headshotStatus',
+                  label: 'Headshot Status',
+                  type: 'select',
+                  defaultValue: 'none',
+                  options: ['none', 'queued', 'processing', 'processed', 'failed'],
+                  admin: { readOnly: true },
+                },
+                {
+                  name: 'headshotLastError',
+                  label: 'Headshot Last Error',
+                  type: 'textarea',
+                  admin: { readOnly: true },
                 },
               ],
             },

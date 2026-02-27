@@ -1,4 +1,4 @@
-import type { ThemeConfig, ThemeTokens } from '@/lib/theme/ThemeTokensEffect';
+import type { ThemeConfig, ThemeTokens } from '@/lib/theme/types';
 import { normalizeThemeToken } from '@/lib/theme/normalizeThemeToken';
 
 const TOKEN_MAP: Record<keyof ThemeTokens, string> = {

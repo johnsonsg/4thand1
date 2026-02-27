@@ -13,6 +13,8 @@ import StatsSettings from './src/globals/StatsSettings'
 import ScheduleSettings from './src/globals/ScheduleSettings'
 import TenantSettings from './src/collections/TenantSettings'
 
+import { presignUpload } from "./src/presignUpload";
+
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
@@ -39,4 +41,11 @@ export default buildConfig({
   typescript: {
     outputFile: path.resolve(process.cwd(), 'src', 'payload-types.ts'),
   },
+  endpoints: [
+    {
+      path: "/uploads/presign",
+      method: "post",
+      handler: presignUpload,
+    },
+  ],
 })

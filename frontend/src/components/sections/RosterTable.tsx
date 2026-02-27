@@ -126,7 +126,7 @@ export function RosterTable({ players = fallbackPlayers }: RosterTableProps) {
                         src={player.image || "/placeholder.svg"}
                         alt={player.name}
                         fill
-                        className="object-cover object-top"
+                        className="object-cover object-top bg-slate-800"
                       />
                     </div>
                     <div>

@@ -1,8 +1,9 @@
 import { headers } from 'next/headers';
 
 import type { CmsLayoutData, ComponentRendering } from '@/lib/types/cms';
-import type { ThemeConfig } from '@/lib/theme/ThemeTokensEffect';
+import type { ThemeConfig } from "@/lib/theme/types";
 import { fetchLayoutData } from '@/lib/services/layout';
+import SiteLayout from '@/app/(site)/layout';
 
 export type SiteLayoutResult = {
   layoutData: CmsLayoutData;

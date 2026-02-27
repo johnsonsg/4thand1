@@ -27,6 +27,40 @@ const slugify = (value: string) =>
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '');
 
+const processPlayerImage = async (data: any, req: any) => {
+  // Only run if image is present and is a new upload
+  if (!data.image || typeof data.image !== 'object' || !data.image.filename) return data;
+  const mediaDoc = data.image;
+  const imageUrl = `/media/${mediaDoc.filename}`;
+  try {
+    // Download the uploaded image
+    const res = await fetch(`${process.env.PAYLOAD_PUBLIC_SERVER_URL || 'http://localhost:3000'}${imageUrl}`);
+    if (!res.ok) throw new Error('Failed to fetch uploaded image');
+    const buffer = Buffer.from(await res.arrayBuffer());
+    // Call Photoroom API
+    const prRes = await fetch('https://sdk.photoroom.com/v1/segment', {
+      method: 'POST',
+      headers: {
+        'x-api-key': process.env.PHOTOROOM_API_KEY!,
+        'Content-Type': 'application/octet-stream',
+      },
+      body: buffer,
+    });
+    if (!prRes.ok) throw new Error('Photoroom API failed');
+    const processedBuffer = Buffer.from(await prRes.arrayBuffer());
+    // Save processed image to disk (overwrite original)
+    const fs = require('fs');
+    const path = require('path');
+    const mediaPath = path.join(process.cwd(), 'frontend', 'public', 'media', mediaDoc.filename);
+    fs.writeFileSync(mediaPath, processedBuffer);
+    // Optionally, update a flag or field if needed
+    return data;
+  } catch (err) {
+    console.error('AI headshot processing failed:', err);
+    return data;
+  }
+};
+
 const Players: CollectionConfig = {
   slug: 'players',
   admin: {
@@ -51,6 +85,9 @@ const Players: CollectionConfig = {
         return data;
       },
     ],
+    afterChange: [async ({ doc, req }) => {
+      await processPlayerImage(doc, req);
+    }],
   },
   access: {
     read: ({ req }) => ({ tenantId: { equals: resolveTenantId(req) } }),

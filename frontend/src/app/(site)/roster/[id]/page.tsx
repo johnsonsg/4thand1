@@ -45,6 +45,7 @@ export default async function PlayerProfilePage({
   const { navbar, footer, theme } = await getSiteLayout("/roster");
   const themeStyle = buildThemeStyle(theme);
   const metadata = await getSiteMetadata("/roster");
+  const headshotBgColor = theme?.headshots?.backgroundColor ?? "#333";
 
   return (
     <>
@@ -65,13 +66,19 @@ export default async function PlayerProfilePage({
 
             <div className="flex flex-col gap-12 lg:flex-row lg:gap-16">
               <div className="relative shrink-0">
-                <div className="relative h-96 w-full overflow-hidden rounded-xl lg:h-[500px] lg:w-80">
+                <div
+                  className="relative h-96 w-full overflow-hidden rounded-xl lg:h-[500px] lg:w-80"
+                //  style={{ backgroundColor: "var(--headshot-bg, hotpink)" }}
+                 style={{ backgroundColor: headshotBgColor }}
+                >
                   <Image
                     src={player.image || "/placeholder.svg"}
                     alt={`${player.name}, ${player.position} #${player.number}`}
-                    fill
                     className="object-cover"
+                    fill
                     priority
+                    unoptimized
+                    // style={{ backgroundColor: headshotBgColor }}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
                 </div>

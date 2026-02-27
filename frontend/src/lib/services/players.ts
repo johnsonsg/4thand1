@@ -28,12 +28,24 @@ type PlayerEntry = {
   bio?: string | null;
   accolades?: Array<{ title?: string | null }> | null;
   sortOrder?: number | null;
+  headshotProcessedKey?: string | null;
+  headshotStatus?: 'none' | 'queued' | 'processing' | 'processed' | 'failed' | null;
 };
 
 type TenantSettingsDoc = {
   id: string;
   tenantId?: string | null;
   players?: PlayerEntry[] | null;
+};
+
+const B2_PUBLIC_BASE_URL =
+  process.env.NEXT_PUBLIC_B2_PUBLIC_BASE_URL ?? 'https://4thand1.s3.us-east-005.backblazeb2.com';
+
+  const resolvePlayerHeadshotUrl = (entry: PlayerEntry): string => {
+  if (entry.headshotStatus === 'processed' && entry.headshotProcessedKey) {
+    return `${B2_PUBLIC_BASE_URL}/${entry.headshotProcessedKey}`;
+  }
+  return resolvePlayerImage(entry.image);
 };
 
 const resolveTenantId = async (): Promise<string> => {
@@ -94,7 +106,8 @@ const mapPlayer = (entry: PlayerEntry): Player => {
     year: entry.year ?? '',
     height: entry.height ?? '',
     weight: entry.weight ?? '',
-    image: resolvePlayerImage(entry.image),
+    // image: resolvePlayerImage(entry.image), // using local storage
+    image: resolvePlayerHeadshotUrl(entry), // using backblaze
     stats: entry.stats ?? '',
     hudlUrl: entry.hudlUrl ?? undefined,
     bio: entry.bio ?? '',

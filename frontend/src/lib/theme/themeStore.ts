@@ -1,6 +1,6 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
-import type { ThemeConfig } from '@/lib/theme/ThemeTokensEffect';
+import type { ThemeConfig } from '@/lib/theme/types';
 
 const defaultThemePath = path.join(process.cwd(), 'data', 'theme.json');
 
