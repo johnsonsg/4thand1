@@ -83,6 +83,36 @@ const slugify = (value: string) =>
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '');
 
+const ensureUniqueTenantId = async (tenantId?: string, currentId?: string) => {
+  if (!tenantId) return tenantId;
+
+  const payload = await getPayload({ config: configPromise });
+  let candidate = tenantId;
+  let suffix = 1;
+
+  // Ensure uniqueness by appending -2, -3, etc. if needed.
+  // Uses overrideAccess so it can check even when tenant filters are applied.
+  while (true) {
+    const existing = await payload.find({
+      collection: 'tenant-settings',
+      where: {
+        tenantId: { equals: candidate },
+        ...(currentId ? { id: { not_equals: currentId } } : {}),
+      },
+      limit: 1,
+      depth: 0,
+      overrideAccess: true,
+    });
+
+    if (!existing.docs.length) {
+      return candidate;
+    }
+
+    suffix += 1;
+    candidate = `${tenantId}-${suffix}`;
+  }
+};
+
 const TenantSettings: CollectionConfig = {
   slug: 'tenant-settings',
   admin: {
@@ -90,15 +120,81 @@ const TenantSettings: CollectionConfig = {
     description: 'Per-tenant settings for brand, hero, theme, stats, and schedule.',
   },
   access: {
-    read: ({ req }) => ({ tenantId: { equals: resolveTenantId(req) } }),
-    update: ({ req }) => ({ tenantId: { equals: resolveTenantId(req) } }),
-    delete: ({ req }) => ({ tenantId: { equals: resolveTenantId(req) } }),
+    read: ({ req }) => (req.user ? true : { tenantId: { equals: resolveTenantId(req) } }),
+    update: ({ req }) => (req.user ? true : { tenantId: { equals: resolveTenantId(req) } }),
+    delete: ({ req }) => (req.user ? true : { tenantId: { equals: resolveTenantId(req) } }),
     create: () => true,
   },
   hooks: {
+    beforeValidate: [
+      async ({ data, originalDoc, req, operation }) => {
+        const providedTenantId = (data as any)?.tenantId as string | undefined;
+        const existingTenantId = (originalDoc as any)?.tenantId as string | undefined;
+        const originalBrandName = (originalDoc as any)?.brand?.brandName ?? '';
+        const brandName =
+          (data as any)?.brand?.brandName ?? (originalDoc as any)?.brand?.brandName ?? '';
+        const brandNameChanged = Boolean(brandName && brandName !== originalBrandName);
+
+        let tenantId = providedTenantId || existingTenantId;
+
+        if (!tenantId && brandName) {
+          const slug = slugify(String(brandName));
+          tenantId = slug || undefined;
+        }
+
+        if (!tenantId) {
+          tenantId = resolveTenantId(req);
+        }
+
+        if (operation !== 'create' && existingTenantId && !providedTenantId) {
+          if (brandNameChanged) {
+            const slug = slugify(String(brandName));
+            tenantId = slug || existingTenantId;
+          } else {
+            tenantId = existingTenantId;
+          }
+        }
+
+        const currentId = (originalDoc as any)?.id as string | undefined;
+        if (
+          operation === 'create' ||
+          (providedTenantId && providedTenantId !== existingTenantId) ||
+          (brandNameChanged && !providedTenantId)
+        ) {
+          tenantId = await ensureUniqueTenantId(tenantId, currentId);
+        }
+
+        return { ...data, tenantId };
+      },
+    ],
     beforeChange: [
-      ({ req, data }) => {
-        const tenantId = resolveTenantId(req);
+      ({ req, data, originalDoc, operation }) => {
+        const providedTenantId = (data as any)?.tenantId as string | undefined;
+        const existingTenantId = (originalDoc as any)?.tenantId as string | undefined;
+        const originalBrandName = (originalDoc as any)?.brand?.brandName ?? '';
+        const brandName =
+          (data as any)?.brand?.brandName ?? (originalDoc as any)?.brand?.brandName ?? '';
+        const brandNameChanged = Boolean(brandName && brandName !== originalBrandName);
+
+        let tenantId = providedTenantId || existingTenantId;
+
+        if (!tenantId && brandName) {
+          const slug = slugify(String(brandName));
+          tenantId = slug || undefined;
+        }
+
+        if (!tenantId) {
+          tenantId = resolveTenantId(req);
+        }
+
+        if (operation !== 'create' && existingTenantId && !providedTenantId) {
+          if (brandNameChanged) {
+            const slug = slugify(String(brandName));
+            tenantId = slug || existingTenantId;
+          } else {
+            tenantId = existingTenantId;
+          }
+        }
         const players = Array.isArray((data as any)?.players)
           ? (data as any).players.map((player: any) => {
               if (!player) return player;
@@ -211,9 +307,21 @@ const TenantSettings: CollectionConfig = {
     {
       name: 'tenantId',
       type: 'text',
-      required: true,
+      required: false,
       unique: true,
-      admin: { readOnly: true },
+      admin: {
+        readOnly: true,
+        components: { Field: '/src/components/admin/TenantIdField#default' },
+      },
+    },
+    {
+      name: 'clerkOrgId',
+      type: 'text',
+      required: false,
+      unique: true,
+      admin: {
+        description: 'Clerk organization ID for team-admin access (set by platform admins).',
+      },
     },
     {
       type: 'tabs',

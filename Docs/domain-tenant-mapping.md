@@ -45,10 +45,10 @@ else
 Add a field to the tenant settings record:
 - `clerkOrgId`
 
-When a user logs into `/admin`:
+When a user logs into `/team-admin`:
 - Read their Clerk org membership
 - Compare to the current tenant’s `clerkOrgId`
-- If mismatch, block access or redirect
+- If mismatch, block access or show an error
 
 ---
 

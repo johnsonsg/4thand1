@@ -4,6 +4,7 @@ type FetchLayoutArgs = {
   path: string;
   context?: { req: { headers: Record<string, string | string[] | undefined> } };
   headers?: Headers;
+  tenantId?: string;
 };
 
 type HeaderGetter = { get(name: string): string | null };
@@ -31,7 +32,7 @@ function getBaseUrlFromReq(req: { headers: Record<string, string | string[] | un
  * - `mock` (default): calls this app's `/api/layout`.
  * - `custom`: calls your backend's layout endpoint (`CMS_LAYOUT_URL`).
  */
-export async function fetchLayoutData({ path, context, headers }: FetchLayoutArgs): Promise<CmsLayoutData> {
+export async function fetchLayoutData({ path, context, headers, tenantId }: FetchLayoutArgs): Promise<CmsLayoutData> {
   const mode = (process.env.CMS_MODE ?? 'mock').toLowerCase();
 
   if (mode === 'mock') {
@@ -43,7 +44,16 @@ export async function fetchLayoutData({ path, context, headers }: FetchLayoutArg
     } else {
       throw new Error('Missing request headers for CMS layout request.');
     }
-    const res = await fetch(`${baseUrl}/api/layout?path=${encodeURIComponent(path)}`);
+    const headerTenantId =
+      headers?.get('x-tenant-id') ?? headers?.get('X-Tenant-Id');
+    const url = new URL(`${baseUrl}/api/layout`);
+    url.searchParams.set('path', path);
+    const resolvedTenantId = tenantId ?? headerTenantId ?? undefined;
+    if (resolvedTenantId) url.searchParams.set('tenant', resolvedTenantId);
+    const res = await fetch(url.toString(), {
+      headers: resolvedTenantId ? { 'x-tenant-id': resolvedTenantId } : undefined,
+      cache: 'no-store',
+    });
     if (!res.ok) {
       const body = await res.text().catch(() => '');
       throw new Error(`Mock CMS layout request failed (${res.status}): ${body.slice(0, 500)}`);

@@ -79,6 +79,12 @@ If you already created an admin user and forgot the password, reset it in MongoD
 - Ensure Clerk keys are set in your environment.
 - Manage users and settings in the Clerk dashboard.
 
+### Team Admin (Clerk)
+
+- Team users manage their tenant content at `/team-admin`.
+- Clerk Organizations are mapped to tenants via `tenant-settings.clerkOrgId`.
+- Platform admins set the org mapping in Payload admin (`/admin`).
+
 ## MongoDB
 
 - Payload stores data in MongoDB.

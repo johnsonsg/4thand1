@@ -39,9 +39,9 @@ const buildSiteMetadata = (raw?: Partial<SiteMetadata>): SiteMetadata => {
   };
 };
 
-export async function getSiteMetadata(path: string): Promise<SiteMetadata> {
+export async function getSiteMetadata(path: string, tenantId?: string): Promise<SiteMetadata> {
   const reqHeaders = await headers();
-  const layoutData = (await fetchLayoutData({ path, headers: reqHeaders })) as CmsLayoutData;
+  const layoutData = (await fetchLayoutData({ path, headers: reqHeaders, tenantId })) as CmsLayoutData;
   const context = (layoutData?.cms?.context ?? {}) as Record<string, unknown>;
   const metadata = (context.metadata ?? {}) as Partial<SiteMetadata>;
 

@@ -159,6 +159,7 @@ export interface User {
  */
 export interface Media {
   id: string;
+  tenantId: string;
   alt: string;
   updatedAt: string;
   createdAt: string;
@@ -180,7 +181,11 @@ export interface Media {
  */
 export interface TenantSetting {
   id: string;
-  tenantId: string;
+  tenantId?: string | null;
+  /**
+   * Clerk organization ID for team-admin access (set by platform admins).
+   */
+  clerkOrgId?: string | null;
   brand?: {
     brandName?: string | null;
     brandSubtitle?: string | null;
@@ -489,6 +494,7 @@ export interface UsersSelect<T extends boolean = true> {
  * via the `definition` "media_select".
  */
 export interface MediaSelect<T extends boolean = true> {
+  tenantId?: T;
   alt?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -508,6 +514,7 @@ export interface MediaSelect<T extends boolean = true> {
  */
 export interface TenantSettingsSelect<T extends boolean = true> {
   tenantId?: T;
+  clerkOrgId?: T;
   brand?:
     | T
     | {

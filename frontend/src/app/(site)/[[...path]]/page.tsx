@@ -11,13 +11,17 @@ import { getSiteMetadata } from '@/lib/services/metadata';
 
 type PageProps = {
   params: Promise<{ path?: string[] }>;
+  searchParams?: Promise<Record<string, string | string[] | undefined>> | Record<string, string | string[] | undefined>;
 };
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata({ params, searchParams }: PageProps): Promise<Metadata> {
   const { path: segments = [] } = await params;
   const path = `/${segments.join('/')}`.replace(/\/$/, '') || '/';
   const pageTitle = segments.length ? segments[segments.length - 1] ?? '' : 'Home';
-  const metadata = await getSiteMetadata(path);
+  const resolvedSearch = (await (searchParams as Promise<Record<string, string | string[] | undefined>>)) ?? {};
+  const tenantParam = resolvedSearch.tenant;
+  const tenantId = Array.isArray(tenantParam) ? tenantParam[0] : tenantParam;
+  const metadata = await getSiteMetadata(path, tenantId);
   const formattedTitle = pageTitle
     ? `${pageTitle.replace(/-/g, ' ').replace(/\b\w/g, (match) => match.toUpperCase())}`
     : 'Home';
@@ -28,12 +32,15 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   };
 }
 
-export default async function RoutePage({ params }: PageProps) {
+export default async function RoutePage({ params, searchParams }: PageProps) {
   const { path: segments = [] } = await params;
   const path = `/${segments.join('/')}`.replace(/\/$/, '') || '/';
+  const resolvedSearch = (await (searchParams as Promise<Record<string, string | string[] | undefined>>)) ?? {};
+  const tenantParam = resolvedSearch.tenant;
+  const tenantId = Array.isArray(tenantParam) ? tenantParam[0] : tenantParam;
 
   const reqHeaders = await headers();
-  const layoutData = (await fetchLayoutData({ path, headers: reqHeaders })) as CmsLayoutData;
+  const layoutData = (await fetchLayoutData({ path, headers: reqHeaders, tenantId })) as CmsLayoutData;
 
   if (!layoutData?.cms?.route) {
     notFound();

@@ -841,7 +841,7 @@ async function layoutForPath(path: string, tenantId: string): Promise<CmsLayoutD
             phone: f(contact.phone ?? ''),
           },
         },
-        footer(),  // Line 479: change this
+        footer(),
       ]
     }
 
@@ -864,7 +864,7 @@ async function layoutForPath(path: string, tenantId: string): Promise<CmsLayoutD
             teamName: f('Westfield Eagles'),
           },
         },
-        footer(),  // Line 497: change this
+        footer(),
       ]
     }
 
@@ -897,7 +897,7 @@ async function layoutForPath(path: string, tenantId: string): Promise<CmsLayoutD
               : {}),
           },
         },
-        footer(),  // Line 520: change this
+        footer(),
       ]
     }
 
@@ -916,7 +916,7 @@ async function layoutForPath(path: string, tenantId: string): Promise<CmsLayoutD
         navbar(),
         { uid: 'nav-spacer', componentName: 'NavSpacer' },
         { uid: 'player-profile', componentName: 'PlayerProfile', fields: { playerId: f(playerId) } },
-        { uid: 'footer', componentName: 'Footer' },
+        footer(),
       ]
     }
 
@@ -925,7 +925,7 @@ async function layoutForPath(path: string, tenantId: string): Promise<CmsLayoutD
         navbar(),
         { uid: 'nav-spacer', componentName: 'NavSpacer' },
         { uid: 'results-section', componentName: 'ResultsSection' },
-        footer(),  // Line 534: change this
+        footer(),
       ]
     }
 
@@ -940,7 +940,7 @@ async function layoutForPath(path: string, tenantId: string): Promise<CmsLayoutD
             articles: f(newsArticles),
           },
         },
-        footer(),  // Line 541: change this
+        footer(),
       ]
     }
 
@@ -962,7 +962,7 @@ async function layoutForPath(path: string, tenantId: string): Promise<CmsLayoutD
             phone: f(contact.phone ?? ''),
           },
         },
-        footer(),  // Line 548: change this
+        footer(),
       ]
     }
 
@@ -1008,7 +1008,7 @@ async function layoutForPath(path: string, tenantId: string): Promise<CmsLayoutD
       navbar(),
       { uid: 'nav-spacer', componentName: 'NavSpacer' },
       ...core,
-      footer(),  // Line 615-616: fix the order and use footer()
+      footer(),
     ]
   })()
 
@@ -1056,7 +1056,8 @@ export async function GET(request: Request) {
       return NextResponse.json(notFound)
     }
 
-    const tenantId = resolveTenantFromRequest(request)
+    const tenantFromQuery = url.searchParams.get('tenant')?.trim()
+    const tenantId = tenantFromQuery || resolveTenantFromRequest(request)
     const tenantSettings = await getTenantSettings(tenantId)
     const theme = await getThemeConfig(tenantId)
     const baseBrand = await getBrandSettings()

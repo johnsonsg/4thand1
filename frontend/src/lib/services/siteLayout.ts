@@ -23,9 +23,9 @@ const fallbackFooter: ComponentRendering = {
   fields: {},
 };
 
-export async function getSiteLayout(path: string): Promise<SiteLayoutResult> {
+export async function getSiteLayout(path: string, tenantId?: string): Promise<SiteLayoutResult> {
   const reqHeaders = await headers();
-  const layoutData = (await fetchLayoutData({ path, headers: reqHeaders })) as CmsLayoutData;
+  const layoutData = (await fetchLayoutData({ path, headers: reqHeaders, tenantId })) as CmsLayoutData;
   const main = layoutData.cms.route?.placeholders?.main ?? [];
   const theme = (layoutData.cms.context?.theme ?? null) as ThemeConfig | null;
 
