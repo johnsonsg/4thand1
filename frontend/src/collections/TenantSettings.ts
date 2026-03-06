@@ -136,21 +136,24 @@ const TenantSettings: CollectionConfig = {
         const brandNameChanged = Boolean(brandName && brandName !== originalBrandName);
 
         let tenantId = providedTenantId || existingTenantId;
+        const desiredTenantId = brandName ? slugify(String(brandName)) : undefined;
 
-        if (!tenantId && brandName) {
-          const slug = slugify(String(brandName));
-          tenantId = slug || undefined;
+        if (!tenantId && desiredTenantId) {
+          tenantId = desiredTenantId;
         }
 
         if (!tenantId) {
           tenantId = resolveTenantId(req);
         }
 
-        if (operation !== 'create' && existingTenantId && !providedTenantId) {
-          if (brandNameChanged) {
-            const slug = slugify(String(brandName));
-            tenantId = slug || existingTenantId;
-          } else {
+        if (operation === 'create' && desiredTenantId) {
+          tenantId = desiredTenantId;
+        }
+
+        if (operation !== 'create' && existingTenantId) {
+          if (brandNameChanged && (!providedTenantId || providedTenantId === existingTenantId)) {
+            tenantId = desiredTenantId || existingTenantId;
+          } else if (!providedTenantId) {
             tenantId = existingTenantId;
           }
         }
@@ -159,7 +162,7 @@ const TenantSettings: CollectionConfig = {
         if (
           operation === 'create' ||
           (providedTenantId && providedTenantId !== existingTenantId) ||
-          (brandNameChanged && !providedTenantId)
+          brandNameChanged
         ) {
           tenantId = await ensureUniqueTenantId(tenantId, currentId);
         }
@@ -177,21 +180,24 @@ const TenantSettings: CollectionConfig = {
         const brandNameChanged = Boolean(brandName && brandName !== originalBrandName);
 
         let tenantId = providedTenantId || existingTenantId;
+        const desiredTenantId = brandName ? slugify(String(brandName)) : undefined;
 
-        if (!tenantId && brandName) {
-          const slug = slugify(String(brandName));
-          tenantId = slug || undefined;
+        if (!tenantId && desiredTenantId) {
+          tenantId = desiredTenantId;
         }
 
         if (!tenantId) {
           tenantId = resolveTenantId(req);
         }
 
-        if (operation !== 'create' && existingTenantId && !providedTenantId) {
-          if (brandNameChanged) {
-            const slug = slugify(String(brandName));
-            tenantId = slug || existingTenantId;
-          } else {
+        if (operation === 'create' && desiredTenantId) {
+          tenantId = desiredTenantId;
+        }
+
+        if (operation !== 'create' && existingTenantId) {
+          if (brandNameChanged && (!providedTenantId || providedTenantId === existingTenantId)) {
+            tenantId = desiredTenantId || existingTenantId;
+          } else if (!providedTenantId) {
             tenantId = existingTenantId;
           }
         }
