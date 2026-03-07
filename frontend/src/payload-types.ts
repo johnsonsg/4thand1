@@ -69,6 +69,7 @@ export interface Config {
   collections: {
     users: User;
     media: Media;
+    'tenant-domains': TenantDomain;
     'tenant-settings': TenantSetting;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
@@ -79,6 +80,7 @@ export interface Config {
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
+    'tenant-domains': TenantDomainsSelect<false> | TenantDomainsSelect<true>;
     'tenant-settings': TenantSettingsSelect<false> | TenantSettingsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
@@ -172,6 +174,28 @@ export interface Media {
   height?: number | null;
   focalX?: number | null;
   focalY?: number | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tenant-domains".
+ */
+export interface TenantDomain {
+  id: string;
+  /**
+   * Custom domain (e.g., manchesterlancers.com).
+   */
+  domain: string;
+  /**
+   * Tenant ID to route this domain to.
+   */
+  tenantId: string;
+  /**
+   * Use active once DNS is verified.
+   */
+  status?: ('pending' | 'active' | 'disabled') | null;
+  notes?: string | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * Per-tenant settings for brand, hero, theme, stats, and schedule.
@@ -422,6 +446,10 @@ export interface PayloadLockedDocument {
         value: string | Media;
       } | null)
     | ({
+        relationTo: 'tenant-domains';
+        value: string | TenantDomain;
+      } | null)
+    | ({
         relationTo: 'tenant-settings';
         value: string | TenantSetting;
       } | null);
@@ -507,6 +535,18 @@ export interface MediaSelect<T extends boolean = true> {
   height?: T;
   focalX?: T;
   focalY?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tenant-domains_select".
+ */
+export interface TenantDomainsSelect<T extends boolean = true> {
+  domain?: T;
+  tenantId?: T;
+  status?: T;
+  notes?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

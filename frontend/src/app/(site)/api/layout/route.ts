@@ -8,7 +8,7 @@
 import { NextResponse } from 'next/server'
 import type { CmsLayoutData, ComponentRendering, Field } from '@/lib/types/cms'
 import { getThemeConfig } from '@/lib/theme/themeStore'
-import { resolveTenantFromRequest } from '@/lib/tenancy/resolveTenant'
+import { resolveTenantFromRequestAsync } from '@/lib/tenancy/resolveTenant'
 import { getPlayers } from '@/lib/services/players'
 import { getNewsArticles } from '@/lib/services/news'
 import type { ThemeConfig, ThemeTokens } from "@/lib/theme/types";
@@ -1057,7 +1057,7 @@ export async function GET(request: Request) {
     }
 
     const tenantFromQuery = url.searchParams.get('tenant')?.trim()
-    const tenantId = tenantFromQuery || resolveTenantFromRequest(request)
+    const tenantId = tenantFromQuery || (await resolveTenantFromRequestAsync(request))
     const tenantSettings = await getTenantSettings(tenantId)
     const theme = await getThemeConfig(tenantId)
     const baseBrand = await getBrandSettings()

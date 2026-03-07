@@ -2,7 +2,7 @@ import configPromise from '@payload-config';
 import { getPayload } from 'payload';
 import { headers } from 'next/headers';
 
-import { resolveTenantFromHeaders } from '@/lib/tenancy/resolveTenant';
+import { resolveTenantFromHeadersAsync } from '@/lib/tenancy/resolveTenant';
 import type { Article } from '@/lib/articles';
 import { articles as fallbackArticles } from '@/lib/articles';
 
@@ -41,7 +41,7 @@ type NewsQueryOptions = {
 
 const resolveTenantId = async (): Promise<string> => {
   const reqHeaders = await headers();
-  return resolveTenantFromHeaders(reqHeaders);
+  return resolveTenantFromHeadersAsync(reqHeaders);
 };
 
 const slugify = (value: string) =>

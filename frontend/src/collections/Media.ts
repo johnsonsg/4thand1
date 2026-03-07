@@ -1,7 +1,7 @@
 import type { CollectionConfig, PayloadRequest } from 'payload';
-import { resolveTenantFromHeaders } from '@/lib/tenancy/resolveTenant';
+import { resolveTenantFromHeadersAsync } from '@/lib/tenancy/resolveTenant';
 
-const resolveTenantId = (req?: PayloadRequest) => {
+const resolveTenantId = async (req?: PayloadRequest) => {
   if (!req?.headers) return process.env.DEFAULT_TENANT_ID ?? 'default';
 
   const headers = req.headers instanceof Headers
@@ -16,7 +16,7 @@ const resolveTenantId = (req?: PayloadRequest) => {
           }),
       );
 
-  return resolveTenantFromHeaders(headers);
+  return resolveTenantFromHeadersAsync(headers);
 };
 
 const Media: CollectionConfig = {
@@ -25,15 +25,15 @@ const Media: CollectionConfig = {
     useAsTitle: 'filename',
   },
   access: {
-    read: ({ req }) => (req.user ? true : { tenantId: { equals: resolveTenantId(req) } }),
-    update: ({ req }) => (req.user ? true : { tenantId: { equals: resolveTenantId(req) } }),
-    delete: ({ req }) => (req.user ? true : { tenantId: { equals: resolveTenantId(req) } }),
+    read: async ({ req }) => (req.user ? true : { tenantId: { equals: await resolveTenantId(req) } }),
+    update: async ({ req }) => (req.user ? true : { tenantId: { equals: await resolveTenantId(req) } }),
+    delete: async ({ req }) => (req.user ? true : { tenantId: { equals: await resolveTenantId(req) } }),
     create: () => true,
   },
   hooks: {
     beforeChange: [
-      ({ req, data }) => {
-        const tenantId = resolveTenantId(req);
+      async ({ req, data }) => {
+        const tenantId = await resolveTenantId(req);
         return { ...data, tenantId };
       },
     ],

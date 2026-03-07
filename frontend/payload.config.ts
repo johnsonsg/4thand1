@@ -6,6 +6,7 @@ import { lexicalEditor } from '@payloadcms/richtext-lexical'
 
 import Users from './src/collections/Users'
 import Media from './src/collections/Media'
+import TenantDomains from './src/collections/TenantDomains'
 import HeroSettings from './src/globals/HeroSettings'
 import BrandSettings from './src/globals/BrandSettings'
 import ThemeSettings from './src/globals/ThemeSettings'
@@ -36,7 +37,7 @@ export default buildConfig({
       baseDir: __dirname
     }
   },
-  collections: [Users, Media, TenantSettings],
+  collections: [Users, Media, TenantDomains, TenantSettings],
   globals: [HeroSettings, BrandSettings, ThemeSettings, StatsSettings, ScheduleSettings],
   typescript: {
     outputFile: path.resolve(process.cwd(), 'src', 'payload-types.ts'),

@@ -3,7 +3,7 @@ import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { b2 } from "@/lib/b2s3";
 import { randomUUID } from "crypto";
-import { resolveTenantFromHeaders } from "@/lib/tenancy/resolveTenant";
+import { resolveTenantFromHeadersAsync } from "@/lib/tenancy/resolveTenant";
 
 const ALLOWED_PURPOSES = ["PLAYER_HEADSHOT", "GENERAL"] as const;
 type Purpose = (typeof ALLOWED_PURPOSES)[number];
@@ -30,7 +30,7 @@ export const presignUpload = async (req: any) => {
   }
 
   // Derive tenantId from headers (never from client input)
-  const tenantId = resolveTenantFromHeaders(req.headers);
+  const tenantId = await resolveTenantFromHeadersAsync(req.headers);
   if (!tenantId) {
     return Response.json({ error: "Tenant not resolved" }, { status: 400 });
   }

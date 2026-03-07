@@ -3,7 +3,7 @@ import { getPayload } from 'payload';
 import { headers } from 'next/headers';
 
 import type { Player, PositionGroup } from '@/lib/players';
-import { resolveTenantFromHeaders } from '@/lib/tenancy/resolveTenant';
+import { resolveTenantFromHeadersAsync } from '@/lib/tenancy/resolveTenant';
 
 type MediaLike = {
   url?: string | null;
@@ -50,7 +50,7 @@ const B2_PUBLIC_BASE_URL =
 
 const resolveTenantId = async (): Promise<string> => {
   const reqHeaders = await headers();
-  return resolveTenantFromHeaders(reqHeaders);
+  return resolveTenantFromHeadersAsync(reqHeaders);
 };
 
 const slugify = (value: string) =>

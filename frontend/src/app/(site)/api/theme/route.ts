@@ -1,15 +1,15 @@
 import { NextResponse } from 'next/server';
 import { getThemeConfig, saveThemeConfig } from '@/lib/theme/themeStore';
-import { resolveTenantFromRequest } from '@/lib/tenancy/resolveTenant';
+import { resolveTenantFromRequestAsync } from '@/lib/tenancy/resolveTenant';
 
 export async function GET(request: Request) {
-  const tenantId = resolveTenantFromRequest(request);
+  const tenantId = await resolveTenantFromRequestAsync(request);
   const theme = await getThemeConfig(tenantId);
   return NextResponse.json(theme);
 }
 
 export async function PUT(request: Request) {
-  const tenantId = resolveTenantFromRequest(request);
+  const tenantId = await resolveTenantFromRequestAsync(request);
   const body = await request.json().catch(() => null);
 
   if (!body || typeof body !== 'object') {

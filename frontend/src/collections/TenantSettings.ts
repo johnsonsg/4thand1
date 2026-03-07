@@ -1,5 +1,5 @@
 import type { CollectionConfig, Field, PayloadRequest } from 'payload';
-import { resolveTenantFromHeaders } from '@/lib/tenancy/resolveTenant';
+import { resolveTenantFromHeadersAsync } from '@/lib/tenancy/resolveTenant';
 import crypto from "node:crypto";
 import configPromise from "@payload-config";
 import { getPayload } from "payload";
@@ -29,7 +29,7 @@ async function getMediaDoc(imageValue: any): Promise<MediaDoc | null> {
   return null;
 }
 
-const resolveTenantId = (req?: PayloadRequest) => {
+const resolveTenantId = async (req?: PayloadRequest) => {
   if (!req?.headers) return process.env.DEFAULT_TENANT_ID ?? 'default';
 
   const headers = req.headers instanceof Headers
@@ -44,7 +44,7 @@ const resolveTenantId = (req?: PayloadRequest) => {
           })
       );
 
-  return resolveTenantFromHeaders(headers);
+  return resolveTenantFromHeadersAsync(headers);
 };
 
 const tokenFields = (): Field[] => [
@@ -120,9 +120,9 @@ const TenantSettings: CollectionConfig = {
     description: 'Per-tenant settings for brand, hero, theme, stats, and schedule.',
   },
   access: {
-    read: ({ req }) => (req.user ? true : { tenantId: { equals: resolveTenantId(req) } }),
-    update: ({ req }) => (req.user ? true : { tenantId: { equals: resolveTenantId(req) } }),
-    delete: ({ req }) => (req.user ? true : { tenantId: { equals: resolveTenantId(req) } }),
+    read: async ({ req }) => (req.user ? true : { tenantId: { equals: await resolveTenantId(req) } }),
+    update: async ({ req }) => (req.user ? true : { tenantId: { equals: await resolveTenantId(req) } }),
+    delete: async ({ req }) => (req.user ? true : { tenantId: { equals: await resolveTenantId(req) } }),
     create: () => true,
   },
   hooks: {
@@ -143,7 +143,7 @@ const TenantSettings: CollectionConfig = {
         }
 
         if (!tenantId) {
-          tenantId = resolveTenantId(req);
+          tenantId = await resolveTenantId(req);
         }
 
         if (operation === 'create' && desiredTenantId) {
@@ -171,7 +171,7 @@ const TenantSettings: CollectionConfig = {
       },
     ],
     beforeChange: [
-      ({ req, data, originalDoc, operation }) => {
+      async ({ req, data, originalDoc, operation }) => {
         const providedTenantId = (data as any)?.tenantId as string | undefined;
         const existingTenantId = (originalDoc as any)?.tenantId as string | undefined;
         const originalBrandName = (originalDoc as any)?.brand?.brandName ?? '';
@@ -187,7 +187,7 @@ const TenantSettings: CollectionConfig = {
         }
 
         if (!tenantId) {
-          tenantId = resolveTenantId(req);
+          tenantId = await resolveTenantId(req);
         }
 
         if (operation === 'create' && desiredTenantId) {

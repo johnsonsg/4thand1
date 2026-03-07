@@ -1,6 +1,6 @@
 # Domain → tenant mapping + Clerk org check (implementation outline)
 
-This doc describes how to add custom domain mapping and auth scoping. Nothing here is implemented yet.
+This doc describes how custom domain mapping and auth scoping work. The domain mapping collection is now implemented.
 
 ---
 
@@ -11,8 +11,8 @@ This doc describes how to add custom domain mapping and auth scoping. Nothing he
 
 ---
 
-## 1) Add a Domain Mapping collection
-Create a Payload collection (example: `tenant-domains`) with fields:
+## 1) Domain Mapping collection
+Use the Payload collection `tenant-domains` with fields:
 - `domain` (text, unique, normalized to lowercase)
 - `tenantId` (text)
 - `status` (optional: pending/active)

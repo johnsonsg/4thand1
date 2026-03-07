@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { getPayload } from "payload";
 import configPromise from "@payload-config";
-import { resolveTenantFromHeaders } from "@/lib/tenancy/resolveTenant";
+import { resolveTenantFromHeadersAsync } from "@/lib/tenancy/resolveTenant";
 import { inngest } from "@/lib/inngest/client";
 
 export const runtime = "nodejs"; // important (Payload + sharp + aws sdk patterns)
@@ -9,7 +9,7 @@ export const runtime = "nodejs"; // important (Payload + sharp + aws sdk pattern
 export async function POST(req: NextRequest) {
   const payload = await getPayload({ config: configPromise });
 
-  const tenantId = resolveTenantFromHeaders(req.headers);
+  const tenantId = await resolveTenantFromHeadersAsync(req.headers);
   if (!tenantId) {
     return Response.json({ error: "Tenant not resolved" }, { status: 400 });
   }
