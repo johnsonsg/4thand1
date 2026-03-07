@@ -1,6 +1,6 @@
 "use client";
 
-import { OrganizationSwitcher, UserButton } from "@clerk/nextjs";
+import { OrganizationSwitcher, UserButton, SignOutButton } from "@clerk/nextjs";
 
 export default function TeamAdminOrgPicker() {
   return (
@@ -15,6 +15,11 @@ export default function TeamAdminOrgPicker() {
         <div className="flex items-center gap-3">
           <OrganizationSwitcher />
           <UserButton />
+          <SignOutButton redirectUrl="/team-admin/sign-in">
+            <button type="button" className="rounded-md border border-border px-3 py-2 text-xs font-semibold">
+              Sign out
+            </button>
+          </SignOutButton>
         </div>
       </div>
     </div>

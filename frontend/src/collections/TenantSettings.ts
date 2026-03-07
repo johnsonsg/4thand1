@@ -83,34 +83,18 @@ const slugify = (value: string) =>
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '');
 
-const ensureUniqueTenantId = async (tenantId?: string, currentId?: string) => {
-  if (!tenantId) return tenantId;
+const resolveTenantIdForRequest = async (
+  data?: Record<string, unknown> | null,
+  originalDoc?: Record<string, unknown> | null,
+  req?: PayloadRequest
+) => {
+  const providedTenantId = (data as any)?.tenantId as string | undefined;
+  const existingTenantId = (originalDoc as any)?.tenantId as string | undefined;
 
-  const payload = await getPayload({ config: configPromise });
-  let candidate = tenantId;
-  let suffix = 1;
+  if (providedTenantId) return providedTenantId;
+  if (existingTenantId) return existingTenantId;
 
-  // Ensure uniqueness by appending -2, -3, etc. if needed.
-  // Uses overrideAccess so it can check even when tenant filters are applied.
-  while (true) {
-    const existing = await payload.find({
-      collection: 'tenant-settings',
-      where: {
-        tenantId: { equals: candidate },
-        ...(currentId ? { id: { not_equals: currentId } } : {}),
-      },
-      limit: 1,
-      depth: 0,
-      overrideAccess: true,
-    });
-
-    if (!existing.docs.length) {
-      return candidate;
-    }
-
-    suffix += 1;
-    candidate = `${tenantId}-${suffix}`;
-  }
+  return resolveTenantId(req);
 };
 
 const TenantSettings: CollectionConfig = {
@@ -128,79 +112,13 @@ const TenantSettings: CollectionConfig = {
   hooks: {
     beforeValidate: [
       async ({ data, originalDoc, req, operation }) => {
-        const providedTenantId = (data as any)?.tenantId as string | undefined;
-        const existingTenantId = (originalDoc as any)?.tenantId as string | undefined;
-        const originalBrandName = (originalDoc as any)?.brand?.brandName ?? '';
-        const brandName =
-          (data as any)?.brand?.brandName ?? (originalDoc as any)?.brand?.brandName ?? '';
-        const brandNameChanged = Boolean(brandName && brandName !== originalBrandName);
-
-        let tenantId = providedTenantId || existingTenantId;
-        const desiredTenantId = brandName ? slugify(String(brandName)) : undefined;
-
-        if (!tenantId && desiredTenantId) {
-          tenantId = desiredTenantId;
-        }
-
-        if (!tenantId) {
-          tenantId = await resolveTenantId(req);
-        }
-
-        if (operation === 'create' && desiredTenantId) {
-          tenantId = desiredTenantId;
-        }
-
-        if (operation !== 'create' && existingTenantId) {
-          if (brandNameChanged && (!providedTenantId || providedTenantId === existingTenantId)) {
-            tenantId = desiredTenantId || existingTenantId;
-          } else if (!providedTenantId) {
-            tenantId = existingTenantId;
-          }
-        }
-
-        const currentId = (originalDoc as any)?.id as string | undefined;
-        if (
-          operation === 'create' ||
-          (providedTenantId && providedTenantId !== existingTenantId) ||
-          brandNameChanged
-        ) {
-          tenantId = await ensureUniqueTenantId(tenantId, currentId);
-        }
-
+        const tenantId = await resolveTenantIdForRequest(data as any, originalDoc as any, req);
         return { ...data, tenantId };
       },
     ],
     beforeChange: [
       async ({ req, data, originalDoc, operation }) => {
-        const providedTenantId = (data as any)?.tenantId as string | undefined;
-        const existingTenantId = (originalDoc as any)?.tenantId as string | undefined;
-        const originalBrandName = (originalDoc as any)?.brand?.brandName ?? '';
-        const brandName =
-          (data as any)?.brand?.brandName ?? (originalDoc as any)?.brand?.brandName ?? '';
-        const brandNameChanged = Boolean(brandName && brandName !== originalBrandName);
-
-        let tenantId = providedTenantId || existingTenantId;
-        const desiredTenantId = brandName ? slugify(String(brandName)) : undefined;
-
-        if (!tenantId && desiredTenantId) {
-          tenantId = desiredTenantId;
-        }
-
-        if (!tenantId) {
-          tenantId = await resolveTenantId(req);
-        }
-
-        if (operation === 'create' && desiredTenantId) {
-          tenantId = desiredTenantId;
-        }
-
-        if (operation !== 'create' && existingTenantId) {
-          if (brandNameChanged && (!providedTenantId || providedTenantId === existingTenantId)) {
-            tenantId = desiredTenantId || existingTenantId;
-          } else if (!providedTenantId) {
-            tenantId = existingTenantId;
-          }
-        }
+        const tenantId = await resolveTenantIdForRequest(data as any, originalDoc as any, req);
         const players = Array.isArray((data as any)?.players)
           ? (data as any).players.map((player: any) => {
               if (!player) return player;

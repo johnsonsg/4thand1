@@ -5,9 +5,12 @@ const indexRedirects: Record<string, string> = {
   '/demo': '/demo/alpha',
 }
 
-export default clerkMiddleware((auth, req) => {
+export default clerkMiddleware(async (auth, req) => {
   if (req.nextUrl.pathname.startsWith('/team-admin') && !req.nextUrl.pathname.startsWith('/team-admin/sign-in')) {
-    auth().protect();
+    const { userId, redirectToSignIn } = await auth();
+    if (!userId) {
+      return redirectToSignIn({ returnBackUrl: req.url });
+    }
   }
 
   const tenantFromQuery = req.nextUrl.searchParams.get('tenant')?.trim();

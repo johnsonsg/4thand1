@@ -3,8 +3,8 @@ import { redirect } from 'next/navigation';
 import TeamAdminApp from '@/components/team-admin/TeamAdminApp';
 import TeamAdminOrgPicker from '@/components/team-admin/TeamAdminOrgPicker';
 
-export default function TeamAdminPage() {
-  const { userId, orgId } = auth();
+export default async function TeamAdminPage() {
+  const { userId, orgId } = await auth();
 
   if (!userId) {
     redirect('/team-admin/sign-in');

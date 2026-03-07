@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 
 export default function SiteLayout({ children }: { children: ReactNode }) {
   return (
-    <ClerkProvider>
+    <ClerkProvider signInUrl="/team-admin/sign-in" afterSignInUrl="/team-admin" afterSignUpUrl="/team-admin">
       <Providers>{children}</Providers>
     </ClerkProvider>
   )

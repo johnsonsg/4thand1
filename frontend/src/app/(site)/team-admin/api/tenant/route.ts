@@ -53,6 +53,7 @@ export async function PUT(request: Request) {
   const payload = await getPayload({ config: configPromise });
 
   const updatePayload = {
+    tenantId: orgId,
     brand: data.brand,
     nav: data.nav,
     metadata: data.metadata,

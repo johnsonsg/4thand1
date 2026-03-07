@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { OrganizationSwitcher, UserButton, useOrganization } from "@clerk/nextjs";
+import { OrganizationSwitcher, UserButton, SignOutButton, useOrganization } from "@clerk/nextjs";
 
 type TenantSettings = Record<string, any>;
 
@@ -232,6 +232,11 @@ export default function TeamAdminApp() {
         <div className="flex items-center gap-3">
           <OrganizationSwitcher />
           <UserButton />
+          <SignOutButton redirectUrl="/team-admin/sign-in">
+            <button type="button" className="rounded-md border border-border px-3 py-2 text-xs font-semibold">
+              Sign out
+            </button>
+          </SignOutButton>
         </div>
       </section>
 

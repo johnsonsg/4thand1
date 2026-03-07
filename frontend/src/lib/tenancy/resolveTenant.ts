@@ -33,11 +33,6 @@ export function resolveTenantFromHeaders(headers: Headers): string {
     return FALLBACK_TENANT;
   }
 
-  const parts = host.split('.');
-  if (parts.length > 2) {
-    return parts[0] ?? FALLBACK_TENANT;
-  }
-
   return FALLBACK_TENANT;
 }
 
@@ -54,11 +49,6 @@ export async function resolveTenantFromHeadersAsync(headers: Headers): Promise<s
 
   const mapped = await lookupTenantFromDomain(host);
   if (mapped) return mapped;
-
-  const parts = host.split('.');
-  if (parts.length > 2) {
-    return parts[0] ?? FALLBACK_TENANT;
-  }
 
   return FALLBACK_TENANT;
 }

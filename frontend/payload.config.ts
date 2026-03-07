@@ -35,7 +35,13 @@ export default buildConfig({
     user: Users.slug,
     importMap: {
       baseDir: __dirname
-    }
+    },
+    components: {
+      afterNavLinks: [
+        '/src/components/admin/AdminCreateUserLink#default',
+        '/src/components/admin/AdminLogoutButton#default',
+      ],
+    },
   },
   collections: [Users, Media, TenantDomains, TenantSettings],
   globals: [HeroSettings, BrandSettings, ThemeSettings, StatsSettings, ScheduleSettings],
